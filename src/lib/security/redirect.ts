@@ -13,7 +13,7 @@ export function safeInternalPath(value: string | null | undefined, fallback = '/
     decoded.startsWith('//') ||
     value.includes('\\') ||
     decoded.includes('\\') ||
-    /[\\u0000-\\u001F\\u007F]/.test(decoded)
+    /[\u0000-\u001F\u007F]/.test(decoded)
   ) {
     return fallback
   }

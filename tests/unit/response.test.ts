@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { privateRedirect } from '@/lib/security/response'
+import { safeInternalPath } from '@/lib/security/redirect'
 
 describe('privateRedirect', () => {
   it('marks auth redirects as private and non-cacheable', () => {
@@ -20,18 +21,15 @@ describe('privateRedirect', () => {
 
 
 describe('safeInternalPath encoded separators', () => {
-  it('rejects encoded backslashes that could be normalized as path separators', async () => {
-    const { safeInternalPath } = await import('@/lib/security/redirect')
+  it('rejects encoded backslashes that could be normalized as path separators', () => {
     expect(safeInternalPath('/%5C%5Cevil.example')).toBe('/today')
   })
 
-  it('rejects encoded double-slash paths', async () => {
-    const { safeInternalPath } = await import('@/lib/security/redirect')
+  it('rejects encoded double-slash paths', () => {
     expect(safeInternalPath('/%2F%2Fevil.example')).toBe('/today')
   })
 
-  it('rejects encoded control characters', async () => {
-    const { safeInternalPath } = await import('@/lib/security/redirect')
+  it('rejects encoded control characters', () => {
     expect(safeInternalPath('/ok%0D%0AInjected')).toBe('/today')
   })
 })
