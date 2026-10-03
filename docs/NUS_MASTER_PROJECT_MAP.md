@@ -78,7 +78,7 @@ NOT YET: microservices, native apps, full CRM/ERP, autonomous AI, large integrat
 
 Scope: create, edit, retrieve, search, detail, notes, timeline/activity, workspace timezone handling, self-service email/password signup on the existing auth screen.
 
-Security: tenant-scoped RLS, column-level mutable fields, append-only activity events for end users, least-privilege foundation grants, no anon table access, valid IANA workspace timezone constraint.
+Security: tenant-scoped RLS, server-validated workspace selection, column-level mutable fields, append-only activity events for end users, least-privilege foundation grants, no anon table access, valid IANA workspace timezone constraint.
 
 ## Applied NUS migrations
 
@@ -92,6 +92,7 @@ Security: tenant-scoped RLS, column-level mutable fields, append-only activity e
 - 20261003144837 organizations_timezone_hardening
 - 20261003145121 foundation_grants_lockdown
 - 20261003145225 public_default_privileges_lockdown
+- 20261003160304 foundation_identity_grants_lockdown
 
 The platform-managed supabase_admin default-privilege owner boundary remains documented; the application-owned migration path has explicit least-privilege defaults.
 
@@ -100,15 +101,19 @@ The platform-managed supabase_admin default-privilege owner boundary remains doc
 - Supabase Security Advisor: 0 lints.
 - All public NUS application tables have RLS enabled.
 - anon has no NUS application-table grants.
-- authenticated foundation grants are least-privilege.
+- authenticated foundation grants are least-privilege, including immutable identity/audit columns excluded from client writes.
 - authenticated can SELECT activity events but cannot INSERT, UPDATE, or DELETE them.
 - authenticated cannot execute the private activity trigger.
 - Valid IANA workspace timezones are enforced at the database boundary.
+- Workspace selection is stored in a server-only cookie and revalidated against the authenticated user's membership before use.
+- Client insert no longer attempts to write the insert-protected `archived_at` column.
+- Foundation `profiles` and `organizations` identity/ownership/timestamp columns are excluded from authenticated UPDATE grants.
 - Disposable cross-tenant RLS proof passed and was rolled back.
 - Current live database counts: auth.users=0, organizations=0, clients=0, client_notes=0, activity_events=0.
 - GitHub Actions Run #66: SUCCESS — dependency audit, typecheck, lint, unit tests, and production build all passed.
 - GitHub Actions Run #67: SUCCESS on the current feature branch after final CI pinning.
 - GitHub Actions Run #68: SUCCESS after the final E2E workflow fail-fast change.
+- GitHub Actions Run #72: SUCCESS — npm audit, typecheck, lint, unit tests, and production build passed after workspace-context hardening.
 - Static high-risk repository scan found no matches for service-role credentials, dangerouslySetInnerHTML, innerHTML, eval(, or new Function(.
 - package-lock.json is committed and lockfile v3; npm ci is reproducible.
 - npm audit high-severity gate is enabled and currently passes.
@@ -143,7 +148,7 @@ The temporary test workflow was deleted immediately after the attempt. The perma
 
 ## Current gate interpretation
 
-Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS.
+Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS through Run #72; the remaining release gates are external authenticated-browser proof and GitHub main protection.
 
 Real authenticated browser persistence: NOT VERIFIED because the required GitHub secrets are absent.
 
