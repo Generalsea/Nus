@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import WorkspaceOnboarding from '@/components/WorkspaceOnboarding'
@@ -31,15 +32,25 @@ export default async function TodayPage() {
   return (
     <main className="min-h-screen px-6 py-8 md:px-10">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex items-start justify-between gap-4">
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-orange-600">NUS · TODAY</p>
             <h1 className="mt-1 text-3xl font-black tracking-tight">صباحك يبدأ بما يهم</h1>
-            <p className="mt-2 text-sm text-gray-500">Foundation milestone: الهوية ومساحة العمل جاهزتان قبل بناء العملاء والمواعيد.</p>
+            <p className="mt-2 text-sm text-gray-500">
+              Foundation complete. Client Core is now the working surface before appointments and follow-ups.
+            </p>
           </div>
-          <form action="/auth/signout" method="post">
-            <button className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold hover:border-gray-400">تسجيل الخروج</button>
-          </form>
+
+          <div className="flex flex-wrap gap-2">
+            <Link href="/clients" className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-extrabold text-white hover:bg-black">
+              العملاء
+            </Link>
+            <form action="/auth/signout" method="post">
+              <button className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold hover:border-gray-400">
+                تسجيل الخروج
+              </button>
+            </form>
+          </div>
         </header>
 
         <section className="grid gap-4 md:grid-cols-3">
@@ -48,15 +59,21 @@ export default async function TodayPage() {
             <h2 className="mt-2 text-xl font-black">{current?.name ?? 'NUS'}</h2>
             <p className="mt-2 text-sm text-gray-600">Timezone: {current?.timezone ?? 'Africa/Cairo'}</p>
           </article>
+
           <article className="rounded-3xl border border-gray-200 bg-white p-6">
-            <p className="text-sm font-bold text-gray-500">الموعد التالي</p>
-            <h2 className="mt-2 text-xl font-black">سيأتي مع Appointment Core</h2>
-            <p className="mt-2 text-sm text-gray-500">لن نزرع بيانات تجريبية في الإنتاج.</p>
+            <p className="text-sm font-bold text-gray-500">الطبقة الحالية</p>
+            <h2 className="mt-2 text-xl font-black">Client Core</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              عملاء حقيقيون، ملاحظات، وسجل زمني دون بيانات وهمية.
+            </p>
           </article>
+
           <article className="rounded-3xl border border-gray-200 bg-white p-6">
-            <p className="text-sm font-bold text-gray-500">الإجراءات المعرضة للضياع</p>
-            <h2 className="mt-2 text-xl font-black">سيأتي مع Follow-up Engine</h2>
-            <p className="mt-2 text-sm text-gray-500">هذه الواجهة لا تدّعي اكتمال وظائف لم تُبنَ بعد.</p>
+            <p className="text-sm font-bold text-gray-500">الخطوة التالية</p>
+            <h2 className="mt-2 text-xl font-black">Appointment Core</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              سنربط المواعيد بسجل العميل، لا كنظام منفصل.
+            </p>
           </article>
         </section>
       </div>
