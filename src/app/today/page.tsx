@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import WorkspaceOnboarding from '@/components/WorkspaceOnboarding'
 import WorkspaceSwitcher from '@/components/WorkspaceSwitcher'
-import { selectWorkspaceAction } from '@/app/workspace/actions'
 import { getWorkspaceContext } from '@/lib/workspace/context'
 
 export const dynamic = 'force-dynamic'
