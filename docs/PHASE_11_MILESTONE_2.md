@@ -25,10 +25,12 @@ A real authenticated user can create and retrieve only authorized client records
 - GitHub Actions Run #72 = SUCCESS after the latest Client Core hardening.
 - GitHub Actions Run #87 = SUCCESS after making authenticated E2E fail closed on non-E2E workspaces.
 - GitHub Actions Run #91 = SUCCESS after final profile-trigger SECURITY DEFINER hardening.
+- Latest database hardening fixed workspace-creation RLS recursion and constraint-function execution, with live transaction proofs for Workspace → Client → Note → Audit.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
 - Auth redirect responses are marked `private, no-store` and `/auth` public matching is exact.
+- Workspace creation is now tested at the database boundary: the atomic RPC returns only after owner membership exists, and direct inserts preserve the owner-membership invariant.
 - `main` is not currently verified as protected in GitHub; do not merge based on repository governance assumptions.
 - `package-lock.json` is committed; current CI uses `npm ci` and a high-severity `npm audit` gate.
 - Signout clears the server workspace-context cookie so a subsequent account cannot inherit stale browser context.
