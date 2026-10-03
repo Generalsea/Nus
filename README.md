@@ -16,7 +16,7 @@ Read [docs/NUS_MASTER_PROJECT_MAP.md](docs/NUS_MASTER_PROJECT_MAP.md) before con
 
 Phase 11 — Code Implementation, Milestone 2 — Client Core.
 
-Technical, security, audit, timezone, dependency reproducibility, and CI gates are passing.
+Technical, security, audit, workspace isolation, timezone, dependency reproducibility, and CI gates are passing through the latest Client Core hardening. The remaining blockers are external authenticated-browser evidence, verified main protection, and real Auth callback configuration.
 
 Remaining release gates:
 - real authenticated browser persistence evidence
