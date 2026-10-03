@@ -139,7 +139,7 @@ Applied migrations:
 
 Current Security Advisor: 0 lints.
 
-Current Performance Advisor: INFO-only unused indexes on low/zero-volume tables; no missing foreign-key index findings remain after Client Core hardening.
+Current Performance Advisor: INFO-only unused-index notices on zero/low-volume tables; no actionable unindexed foreign-key findings remain.
 
 ## Foundation verification evidence
 GitHub Actions Run #4:
@@ -149,15 +149,57 @@ GitHub Actions Run #4:
 - unit tests: PASS — 3 suites / 11 tests
 - production build: PASS — Next.js 16.3.8
 
-The Foundation PR #1 was merged to `main`.
+Foundation PR #1 was merged to `main`.
+
+## Client Core implementation
+Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
+- create client
+- edit client
+- retrieve client
+- search by name/phone/email
+- client detail
+- notes
+- timeline/activity
+- tenant-aware RLS
+- column-level write grants
+- server-side validation
+- server actions
+- search input normalization
+- unit tests
+
+## Client Core verification evidence
+GitHub Actions Run #9 on the latest search-hardening test commit:
+- npm install: PASS
+- typecheck: PASS
+- lint: PASS
+- unit tests: PASS
+- production build: PASS
+- overall conclusion: SUCCESS
+
+Supabase:
+- Security Advisor: 0 lints
+- table-level DELETE/TRUNCATE privileges for authenticated: false on clients and client_notes
+- organization_id and created_by_user_id are not UPDATE-granted
+- client_notes organization_id and author_user_id are not UPDATE-granted
+- disposable authenticated-context RLS proof:
+  - own_visible = 1
+  - cross_visible = 0
+  - cross_insert_visible = 0
+  - cross_update_visible = 0
+  - cross_note_visible = 0
+- synthetic proof transaction was rolled back; synthetic user/org/client counts after the test are all zero.
 
 ## Client Core gate
-Client Core remains OPEN until:
-- real authenticated persistence is verified
-- cross-tenant access denial is evidenced
-- create/edit/retrieve/search/detail/notes/timeline flows are verified
-- CI typecheck/lint/tests/build pass on the Client Core branch
-- no mock production state is introduced
+**Technical implementation gate: PASS.**
+
+**Application-level browser Auth flow: NOT VERIFIED.**
+
+Reason:
+- NUS currently has zero persisted Auth users.
+- The exposed environment has no browser automation connector.
+- No temporary auth method is enabled merely to manufacture a passing test.
+
+Therefore PR #2 remains open and Milestone 2 remains ACTIVE. Do not advance to Appointment Core until the browser-level authenticated flow is evidenced.
 
 ## Commercial continuity
 Commercial validation remains PARTIAL.
@@ -176,7 +218,7 @@ At the start of every future NUS conversation:
 1. Read this file.
 2. Inspect current `Generalsea/Nus` state.
 3. Inspect NUS Supabase only.
-4. Determine the last passed gate.
+4. Determine last passed gate.
 5. Continue from that exact milestone.
 6. Never restart Phase 0–10 without explicit evidence that a gate reopened.
 
