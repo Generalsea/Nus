@@ -27,7 +27,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          id?: string
           display_name?: string | null
           timezone?: string
           locale?: string
@@ -55,10 +54,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          id?: string
           name?: string
           slug?: string
-          owner_id?: string
           timezone?: string
           updated_at?: string
         }
@@ -77,12 +74,7 @@ export type Database = {
           role?: string
           created_at?: string
         }
-        Update: {
-          organization_id?: string
-          user_id?: string
-          role?: string
-          created_at?: string
-        }
+        Update: never
         Relationships: []
       }
       activity_events: {
@@ -96,26 +88,8 @@ export type Database = {
           metadata: Json
           created_at: string
         }
-        Insert: {
-          id?: string
-          organization_id: string
-          actor_user_id: string
-          event_name: string
-          entity_type?: string | null
-          entity_id?: string | null
-          metadata?: Json
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          organization_id?: string
-          actor_user_id?: string
-          event_name?: string
-          entity_type?: string | null
-          entity_id?: string | null
-          metadata?: Json
-          created_at?: string
-        }
+        Insert: never
+        Update: never
         Relationships: []
       }
       clients: {
@@ -143,22 +117,14 @@ export type Database = {
           preferred_contact_method?: string | null
           status?: string
           lead_source?: string | null
-          created_at?: string
-          updated_at?: string
-          archived_at?: string | null
         }
         Update: {
-          id?: string
-          organization_id?: string
-          created_by_user_id?: string
           full_name?: string
           phone?: string | null
           email?: string | null
           preferred_contact_method?: string | null
           status?: string
           lead_source?: string | null
-          created_at?: string
-          updated_at?: string
           archived_at?: string | null
         }
         Relationships: [
@@ -182,22 +148,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          id?: string
           organization_id: string
           client_id: string
           author_user_id: string
           body: string
-          created_at?: string
-          updated_at?: string
         }
         Update: {
-          id?: string
-          organization_id?: string
-          client_id?: string
-          author_user_id?: string
           body?: string
-          created_at?: string
-          updated_at?: string
         }
         Relationships: [
           {

@@ -1,35 +1,13 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { archiveTimestamp } from '@/lib/domain/client'
+import { getWorkspaceContext } from '@/lib/workspace/context'
 import { clientNoteSchema, clientSchema } from '@/lib/validation/client'
 
 export type ClientActionResult =
   | { ok: true; clientId: string }
   | { ok: false; message: string }
-
-async function getUserAndWorkspace() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) return { supabase, user: null, organizationId: null }
-
-  const { data: membership, error } = await supabase
-    .from('organization_members')
-    .select('organization_id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
-  if (error || !membership) return { supabase, user, organizationId: null }
-
-  return { supabase, user, organizationId: membership.organization_id }
-}
 
 function textValue(value: FormDataEntryValue | null): string {
   return typeof value === 'string' ? value : ''
@@ -46,9 +24,9 @@ function genericClientWriteError(errorCode?: string): ClientActionResult {
 }
 
 export async function createClientAction(formData: FormData): Promise<ClientActionResult> {
-  const { supabase, user, organizationId } = await getUserAndWorkspace()
-  if (!user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
-  if (!organizationId) return { ok: false, message: 'أنشئ مساحة عمل أولًا.' }
+  const context = await getWorkspaceContext()
+  if (!context.user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
+  if (!context.current) return { ok: false, message: 'أنشئ مساحة عمل أولًا.' }
 
   const parsed = clientSchema.safeParse({
     full_name: textValue(formData.get('full_name')),
@@ -61,18 +39,17 @@ export async function createClientAction(formData: FormData): Promise<ClientActi
 
   if (!parsed.success) return { ok: false, message: 'راجع بيانات العميل وأكمل الحقول بشكل صحيح.' }
 
-  const { data, error } = await supabase
+  const { data, error } = await context.supabase
     .from('clients')
     .insert({
-      organization_id: organizationId,
-      created_by_user_id: user.id,
+      organization_id: context.current.id,
+      created_by_user_id: context.user.id,
       full_name: parsed.data.full_name,
       phone: parsed.data.phone ?? null,
       email: parsed.data.email ?? null,
       preferred_contact_method: parsed.data.preferred_contact_method ?? null,
       status: 'active',
       lead_source: parsed.data.lead_source ?? null,
-      archived_at: null,
     })
     .select('id')
     .single()
@@ -84,9 +61,9 @@ export async function createClientAction(formData: FormData): Promise<ClientActi
 }
 
 export async function updateClientAction(formData: FormData): Promise<ClientActionResult> {
-  const { supabase, user, organizationId } = await getUserAndWorkspace()
-  if (!user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
-  if (!organizationId) return { ok: false, message: 'مساحة العمل غير متاحة.' }
+  const context = await getWorkspaceContext()
+  if (!context.user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
+  if (!context.current) return { ok: false, message: 'مساحة العمل غير متاحة.' }
 
   const clientId = textValue(formData.get('client_id'))
   const status = textValue(formData.get('status')) || 'active'
@@ -106,7 +83,7 @@ export async function updateClientAction(formData: FormData): Promise<ClientActi
 
   const archivedAt = archiveTimestamp(parsed.data.status, new Date().toISOString())
 
-  const { data, error } = await supabase
+  const { data, error } = await context.supabase
     .from('clients')
     .update({
       full_name: parsed.data.full_name,
@@ -118,7 +95,7 @@ export async function updateClientAction(formData: FormData): Promise<ClientActi
       archived_at: archivedAt,
     })
     .eq('id', clientId)
-    .eq('organization_id', organizationId)
+    .eq('organization_id', context.current.id)
     .select('id')
     .maybeSingle()
 
@@ -131,9 +108,9 @@ export async function updateClientAction(formData: FormData): Promise<ClientActi
 }
 
 export async function addClientNoteAction(formData: FormData): Promise<ClientActionResult> {
-  const { supabase, user, organizationId } = await getUserAndWorkspace()
-  if (!user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
-  if (!organizationId) return { ok: false, message: 'مساحة العمل غير متاحة.' }
+  const context = await getWorkspaceContext()
+  if (!context.user) return { ok: false, message: 'يجب تسجيل الدخول أولًا.' }
+  if (!context.current) return { ok: false, message: 'مساحة العمل غير متاحة.' }
 
   const clientId = textValue(formData.get('client_id'))
   const parsed = clientNoteSchema.safeParse({ body: textValue(formData.get('body')) })
@@ -142,21 +119,21 @@ export async function addClientNoteAction(formData: FormData): Promise<ClientAct
     return { ok: false, message: 'أدخل ملاحظة صالحة.' }
   }
 
-  const { data: client, error: clientError } = await supabase
+  const { data: client, error: clientError } = await context.supabase
     .from('clients')
     .select('id, organization_id')
     .eq('id', clientId)
-    .eq('organization_id', organizationId)
+    .eq('organization_id', context.current.id)
     .maybeSingle()
 
   if (clientError || !client) {
     return { ok: false, message: 'العميل غير متاح لمساحة العمل الحالية.' }
   }
 
-  const { error } = await supabase.from('client_notes').insert({
+  const { error } = await context.supabase.from('client_notes').insert({
     organization_id: client.organization_id,
     client_id: client.id,
-    author_user_id: user.id,
+    author_user_id: context.user.id,
     body: parsed.data.body,
   })
 

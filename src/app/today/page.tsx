@@ -1,33 +1,17 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import WorkspaceOnboarding from '@/components/WorkspaceOnboarding'
+import WorkspaceSwitcher from '@/components/WorkspaceSwitcher'
+import { selectWorkspaceAction } from '@/app/workspace/actions'
+import { getWorkspaceContext } from '@/lib/workspace/context'
 
 export const dynamic = 'force-dynamic'
 
 export default async function TodayPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const context = await getWorkspaceContext()
 
-  const { data: memberships, error: membershipError } = await supabase
-    .from('organization_members')
-    .select('organization_id, role, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-
-  if (membershipError) throw new Error('Unable to load workspace membership.')
-  if (!memberships?.length) return <WorkspaceOnboarding />
-
-  const ids = memberships.map((membership) => membership.organization_id)
-  const { data: organizations, error } = await supabase
-    .from('organizations')
-    .select('id, name, timezone')
-    .in('id', ids)
-    .order('created_at', { ascending: true })
-
-  if (error) throw new Error('Unable to load workspace.')
-  const current = organizations?.[0]
+  if (!context.user) redirect('/login')
+  if (!context.current) return <WorkspaceOnboarding />
 
   return (
     <main className="min-h-screen px-6 py-8 md:px-10">
@@ -53,28 +37,35 @@ export default async function TodayPage() {
           </div>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <article className="rounded-3xl border border-orange-200 bg-orange-50 p-6">
-            <p className="text-sm font-bold text-orange-700">مساحة العمل</p>
-            <h2 className="mt-2 text-xl font-black">{current?.name ?? 'NUS'}</h2>
-            <p className="mt-2 text-sm text-gray-600">Timezone: {current?.timezone ?? 'Africa/Cairo'}</p>
-          </article>
+        <section className="space-y-4">
+          <WorkspaceSwitcher
+            currentId={context.current.id}
+            organizations={context.organizations.map(({ id, name }) => ({ id, name }))}
+          />
 
-          <article className="rounded-3xl border border-gray-200 bg-white p-6">
-            <p className="text-sm font-bold text-gray-500">الطبقة الحالية</p>
-            <h2 className="mt-2 text-xl font-black">Client Core</h2>
-            <p className="mt-2 text-sm text-gray-500">
-              عملاء حقيقيون، ملاحظات، وسجل زمني دون بيانات وهمية.
-            </p>
-          </article>
+          <div className="grid gap-4 md:grid-cols-3">
+            <article className="rounded-3xl border border-orange-200 bg-orange-50 p-6">
+              <p className="text-sm font-bold text-orange-700">مساحة العمل</p>
+              <h2 className="mt-2 text-xl font-black">{context.current.name}</h2>
+              <p className="mt-2 text-sm text-gray-600">Timezone: {context.current.timezone}</p>
+            </article>
 
-          <article className="rounded-3xl border border-gray-200 bg-white p-6">
-            <p className="text-sm font-bold text-gray-500">الخطوة التالية</p>
-            <h2 className="mt-2 text-xl font-black">Appointment Core</h2>
-            <p className="mt-2 text-sm text-gray-500">
-              سنربط المواعيد بسجل العميل، لا كنظام منفصل.
-            </p>
-          </article>
+            <article className="rounded-3xl border border-gray-200 bg-white p-6">
+              <p className="text-sm font-bold text-gray-500">الطبقة الحالية</p>
+              <h2 className="mt-2 text-xl font-black">Client Core</h2>
+              <p className="mt-2 text-sm text-gray-500">
+                عملاء حقيقيون، ملاحظات، وسجل زمني دون بيانات وهمية.
+              </p>
+            </article>
+
+            <article className="rounded-3xl border border-gray-200 bg-white p-6">
+              <p className="text-sm font-bold text-gray-500">الخطوة التالية</p>
+              <h2 className="mt-2 text-xl font-black">Appointment Core</h2>
+              <p className="mt-2 text-sm text-gray-500">
+                سنربط المواعيد بسجل العميل، لا كنظام منفصل.
+              </p>
+            </article>
+          </div>
         </section>
       </div>
     </main>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getWorkspaceContext } from '@/lib/workspace/context'
 import ClientForm from '@/components/ClientForm'
 
 export const dynamic = 'force-dynamic'
@@ -10,30 +10,18 @@ export default async function EditClientPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const context = await getWorkspaceContext()
 
-  if (!user) redirect('/login')
-
-  const { data: membership } = await supabase
-    .from('organization_members')
-    .select('organization_id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
-  if (!membership) redirect('/today')
+  if (!context.user) redirect('/login')
+  if (!context.current) redirect('/today')
 
   const { id } = await params
 
-  const { data: client, error } = await supabase
+  const { data: client, error } = await context.supabase
     .from('clients')
     .select('id, full_name, phone, email, preferred_contact_method, status, lead_source')
     .eq('id', id)
-    .eq('organization_id', membership.organization_id)
+    .eq('organization_id', context.current.id)
     .maybeSingle()
 
   if (error || !client) notFound()

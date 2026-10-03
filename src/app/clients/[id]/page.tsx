@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import {
   CLIENT_STATUS_LABELS,
   CONTACT_METHOD_LABELS,
   type ClientStatus,
   type PreferredContactMethod,
 } from '@/lib/domain/client'
+import { getWorkspaceContext } from '@/lib/workspace/context'
 import ClientNoteForm from '@/components/ClientNoteForm'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +14,8 @@ export const dynamic = 'force-dynamic'
 const eventLabels: Record<string, string> = {
   client_created: 'تم إنشاء العميل',
   client_updated: 'تم تحديث بيانات العميل',
+  client_note_added: 'تمت إضافة ملاحظة',
+  client_note_updated: 'تم تحديث ملاحظة',
 }
 
 export default async function ClientDetailPage({
@@ -21,62 +23,59 @@ export default async function ClientDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const context = await getWorkspaceContext()
 
-  if (!user) redirect('/login')
-
-  const { data: membership } = await supabase
-    .from('organization_members')
-    .select('organization_id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
-  if (!membership) redirect('/today')
-
-  const { data: workspace } = await supabase
-    .from('organizations')
-    .select('timezone')
-    .eq('id', membership.organization_id)
-    .maybeSingle()
-
-  if (!workspace) redirect('/today')
+  if (!context.user) redirect('/login')
+  if (!context.current) redirect('/today')
 
   const { id } = await params
 
   const [clientResult, notesResult, eventsResult] = await Promise.all([
-    supabase
+    context.supabase
       .from('clients')
       .select(
         'id, organization_id, full_name, phone, email, preferred_contact_method, status, lead_source, created_at, updated_at, archived_at',
       )
       .eq('id', id)
-      .eq('organization_id', membership.organization_id)
+      .eq('organization_id', context.current.id)
       .maybeSingle(),
-    supabase
+    context.supabase
       .from('client_notes')
       .select('id, body, created_at, updated_at')
       .eq('client_id', id)
-      .eq('organization_id', membership.organization_id)
+      .eq('organization_id', context.current.id)
       .order('created_at', { ascending: false })
       .limit(100),
-    supabase
+    context.supabase
       .from('activity_events')
       .select('id, event_name, entity_type, entity_id, created_at')
-      .eq('organization_id', membership.organization_id)
+      .eq('organization_id', context.current.id)
       .eq('entity_type', 'client')
       .eq('entity_id', id)
       .order('created_at', { ascending: false })
-      .limit(50),
+      .limit(100),
   ])
 
   if (clientResult.error || !clientResult.data) notFound()
   if (notesResult.error || eventsResult.error) {
     throw new Error('تعذر تحميل سجل العميل.')
+  }
+
+  const noteIds = (notesResult.data ?? []).map((note) => note.id)
+  let events = eventsResult.data ?? []
+
+  if (noteIds.length > 0) {
+    const noteEvents = await context.supabase
+      .from('activity_events')
+      .select('id, event_name, entity_type, entity_id, created_at')
+      .eq('organization_id', context.current.id)
+      .eq('entity_type', 'client_note')
+      .in('entity_id', noteIds)
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (noteEvents.error) throw new Error('تعذر تحميل نشاط ملاحظات العميل.')
+    events = [...events, ...(noteEvents.data ?? [])]
   }
 
   const client = clientResult.data
@@ -85,9 +84,7 @@ export default async function ClientDetailPage({
     client.preferred_contact_method as PreferredContactMethod | null
 
   const timeline = [
-    ...(eventsResult.data ?? [])
-      .filter((event) => event.entity_type === 'client')
-      .map((event) => ({
+    ...events.map((event) => ({
       id: 'event-' + event.id,
       kind: 'event' as const,
       at: event.created_at,
@@ -253,7 +250,7 @@ export default async function ClientDetailPage({
                         className="text-xs font-bold text-gray-400"
                       >
                         {new Date(item.at).toLocaleString('ar-EG', {
-                          timeZone: workspace.timezone,
+                          timeZone: context.current.timezone,
                         })}
                       </time>
                     </div>

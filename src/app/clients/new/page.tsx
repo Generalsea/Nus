@@ -1,27 +1,15 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getWorkspaceContext } from '@/lib/workspace/context'
 import ClientForm from '@/components/ClientForm'
 
 export const dynamic = 'force-dynamic'
 
 export default async function NewClientPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const context = await getWorkspaceContext()
 
-  if (!user) redirect('/login')
-
-  const { data: membership } = await supabase
-    .from('organization_members')
-    .select('organization_id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
-  if (!membership) redirect('/today')
+  if (!context.user) redirect('/login')
+  if (!context.current) redirect('/today')
 
   return (
     <main className="min-h-screen px-6 py-8 md:px-10">
