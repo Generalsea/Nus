@@ -159,7 +159,7 @@ The temporary test workflow was deleted immediately after the attempt. The perma
 
 ## Current gate interpretation
 
-Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS through Run #72; the remaining release gates are external authenticated-browser proof and GitHub main protection.
+Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS through Run #91; the latest synchronized documentation commit is validated by CI Run #92.
 
 Real authenticated browser persistence: NOT VERIFIED because the required GitHub secrets are absent.
 
