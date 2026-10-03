@@ -1,5 +1,4 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
-import tseslint from 'typescript-eslint'
 
 export default defineConfig([
   globalIgnores([
@@ -10,7 +9,15 @@ export default defineConfig([
     'test-results/**',
   ]),
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: tseslint.configs.recommended,
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+    rules: {
+      'no-undef': 'error',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unreachable': 'error',
+    },
   },
 ])
