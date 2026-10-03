@@ -17,8 +17,6 @@ test.describe('Client Core authenticated flow', () => {
     const updatedName = `${clientName} Updated`
 
     await page.goto('/login')
-    await page.getByRole('tab', { name: 'تسجيل الدخول' }).click().catch(() => undefined)
-
     await page.getByLabel('البريد الإلكتروني').fill(email)
     await page.getByLabel('كلمة المرور').fill(password)
     await page.getByRole('button', { name: 'تسجيل الدخول' }).click()
