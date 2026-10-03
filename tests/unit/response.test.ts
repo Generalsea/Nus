@@ -17,3 +17,21 @@ describe('privateRedirect', () => {
     expect(response.headers.get('cache-control')).toBe('private, no-store')
   })
 })
+
+
+describe('safeInternalPath encoded separators', () => {
+  it('rejects encoded backslashes that could be normalized as path separators', async () => {
+    const { safeInternalPath } = await import('@/lib/security/redirect')
+    expect(safeInternalPath('/%5C%5Cevil.example')).toBe('/today')
+  })
+
+  it('rejects encoded double-slash paths', async () => {
+    const { safeInternalPath } = await import('@/lib/security/redirect')
+    expect(safeInternalPath('/%2F%2Fevil.example')).toBe('/today')
+  })
+
+  it('rejects encoded control characters', async () => {
+    const { safeInternalPath } = await import('@/lib/security/redirect')
+    expect(safeInternalPath('/ok%0D%0AInjected')).toBe('/today')
+  })
+})
