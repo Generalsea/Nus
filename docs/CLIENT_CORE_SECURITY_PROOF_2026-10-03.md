@@ -44,8 +44,27 @@ Column privileges confirm:
 
 Table-level DELETE/TRUNCATE privileges for `authenticated` are false on both Client Core tables.
 
+## Foundation identity grant proof
+
+A live privilege check after the latest migration confirmed that authenticated users cannot UPDATE `profiles.id`, `profiles.updated_at`, `organizations.id`, `organizations.owner_id`, or `organizations.created_at`, while intended mutable fields remain writable. Authenticated INSERT on organizations does not include the generated primary key.
+
+Observed results:
+
+```text
+profiles_id_update=false
+profiles_updated_at_update=false
+org_id_update=false
+org_owner_update=false
+org_created_at_update=false
+org_name_update=true
+org_name_insert=true
+org_id_insert=false
+```
+
+This closes an identity-column mutation path at the database grant layer rather than relying only on application types.
+
 ## Current gate interpretation
 
-CI and database authorization proof are PASS.
+CI Run #72 and database authorization proof are PASS. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
 
 The remaining application-level evidence is a real login/signup browser flow against the NUS Auth service. NUS currently contains zero persisted auth users, and no browser automation connector is exposed in this environment; therefore that evidence is intentionally not claimed.
