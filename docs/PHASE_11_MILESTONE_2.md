@@ -17,6 +17,7 @@ A real authenticated user can create and retrieve only authorized client records
 - GitHub Actions Run #29 = SUCCESS.
 - GitHub Actions Run #34 = SUCCESS after workspace-slug and auth-proxy hardening.
 - GitHub Actions Run #41 = SUCCESS with committed lockfile and `npm ci`.
+- GitHub Actions Run #49 = SUCCESS after Today/Client error-state hardening and E2E harness addition.
 - Existing login screen now includes email/password signup, password confirmation, neutral errors, confirmation messaging, and safe callback return path.
 
 ## Release hardening notes
@@ -24,6 +25,10 @@ A real authenticated user can create and retrieve only authorized client records
 - Auth redirect responses are marked `private, no-store` and `/auth` public matching is exact.
 - `main` is not currently verified as protected in GitHub; do not merge based on repository governance assumptions.
 - `package-lock.json` is committed; Run #41 verified `npm ci` successfully.
+
+## E2E readiness
+- Playwright authenticated Client Core flow is implemented.
+- Manual GitHub Actions workflow `.github/workflows/e2e.yml` is ready and requires a confirmed non-production Auth test account.
 
 ## Remaining gate
 Browser-level authenticated persistence is NOT VERIFIED.

@@ -72,6 +72,7 @@ An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role
 - GitHub Actions Run #29: SUCCESS.
 - GitHub Actions Run #34: SUCCESS on head `c2317dfdf555c0acad7c64194e0f8a4dbff27d49`.
 - GitHub Actions Run #41: SUCCESS on head `6b466acea2b0c4de8df8f79ca45e954e8b05d18e`, including `npm ci`, typecheck, lint, unit tests, and production build.
+- GitHub Actions Run #49: SUCCESS on head `61c386a8f4273f05413b8406000584761dcb3671` after client/today error boundaries and authenticated E2E harness hardening.
 - `package-lock.json` (lockfile v3) is committed; CI uses `npm ci` with `contents: read`.
 - Workspace onboarding now generates an ASCII-safe deterministic slug for Arabic-only names.
 - Auth redirect responses are explicitly `private, no-store`, and the public auth matcher is limited to `/login` and `/auth/*`.
@@ -88,6 +89,7 @@ Activity/audit hardening: PASS.
 Timezone hardening: PASS.
 Least-privilege hardening: PASS.
 Self-service Auth UI: PASS at code/CI level.
+E2E infrastructure: PASS — Playwright config, authenticated Client Core flow, and manual GitHub Actions E2E workflow are present; real execution remains pending.
 Browser-level authenticated persistence: NOT VERIFIED.
 
 Reason: NUS currently has zero persisted Auth users and the connected execution environment exposes no browser automation connector. Anonymous Auth is not enabled merely to manufacture E2E evidence.
