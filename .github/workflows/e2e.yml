@@ -1,0 +1,35 @@
+name: Authenticated E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Optional deployed or local URL. Leave empty to start Next.js locally.
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  client-core:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NUS_E2E_EMAIL: ${{ secrets.NUS_E2E_EMAIL }}
+      NUS_E2E_PASSWORD: ${{ secrets.NUS_E2E_PASSWORD }}
+      PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e
