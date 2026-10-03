@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE — technical gate passed; browser authenticated-flow evidence pending.**
+**ACTIVE — technical, audit, and timezone gates passed; browser authenticated-flow evidence pending.**
 
 ## Scope implemented
 
@@ -13,6 +13,7 @@
 - client detail
 - notes
 - timeline/activity
+- workspace timezone validation and client timeline timezone rendering
 
 ## Acceptance criteria
 
@@ -26,8 +27,12 @@ PASS:
 - cross-tenant note attachment is rejected
 - organization/authorship update keys are not granted to authenticated clients
 - DELETE/TRUNCATE table privileges are not granted
-- RLS is enabled on both Client Core tables
+- RLS is enabled on Client Core tables
 - Supabase Security Advisor reports 0 lints
+- activity_events is readable only by authenticated organization members
+- authenticated users cannot INSERT, UPDATE, or DELETE activity_events
+- activity lifecycle recording is performed by a private SECURITY DEFINER trigger with a fixed search path and revoked direct EXECUTE
+- organizations.timezone is constrained to valid IANA time zones
 
 A disposable authenticated-context transaction was rolled back after verification. No synthetic users, organizations or clients remain.
 
@@ -38,7 +43,7 @@ PASS:
 - lint
 - unit tests
 - production build
-- latest GitHub Actions Run #9 = SUCCESS
+- GitHub Actions Run #23 = SUCCESS
 
 ## Remaining gate
 
