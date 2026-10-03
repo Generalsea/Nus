@@ -31,7 +31,6 @@ export type Database = {
           display_name?: string | null
           timezone?: string
           locale?: string
-          created_at?: string
           updated_at?: string
         }
         Relationships: []
@@ -52,7 +51,6 @@ export type Database = {
           slug: string
           owner_id: string
           timezone?: string
-          locale?: string
           created_at?: string
           updated_at?: string
         }
