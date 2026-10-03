@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 const root = process.cwd()
 const roots = ['src', 'supabase/migrations', 'proxy.ts', 'next.config.ts', 'middleware.ts']
@@ -49,11 +50,11 @@ for (const file of files) {
 }
 
 if (findings.length) {
-  console.error('Security static scan failed:')
+  process.stderr.write('Security static scan failed:\n')
   for (const finding of findings) {
-    console.error(`${finding.file}:${finding.line} [${finding.rule}] ${finding.text}`)
+    process.stderr.write(`${finding.file}:${finding.line} [${finding.rule}] ${finding.text}\n`)
   }
   process.exit(1)
 }
 
-console.log(`Security static scan passed: ${files.length} source files checked.`)
+process.stdout.write(`Security static scan passed: ${files.length} source files checked.\n`)
