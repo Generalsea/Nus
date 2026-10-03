@@ -23,6 +23,7 @@ A real authenticated user can create and retrieve only authorized client records
 - Workspace context is centralized and selected workspace IDs are server-validated against the signed-in user's memberships.
 - Foundation identity/timestamp update grants are locked down at the database boundary.
 - GitHub Actions Run #72 = SUCCESS after the latest Client Core hardening.
+- GitHub Actions Run #87 = SUCCESS after making authenticated E2E fail closed on non-E2E workspaces.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
