@@ -136,6 +136,7 @@ Applied migrations:
 - `20261003134008_foundation_function_hardening`
 - `20261003142451_client_core`
 - `20261003142516_client_core_hardening`
+- `20261003144346_client_activity_security_hardening`
 
 Current Security Advisor: 0 lints.
 
@@ -166,9 +167,10 @@ Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
 - server actions
 - search input normalization
 - unit tests
+- hardened internal activity-event trigger path
 
 ## Client Core verification evidence
-GitHub Actions Run #9 on the latest search-hardening test commit:
+GitHub Actions Run #9 on the search-hardening code commit:
 - npm install: PASS
 - typecheck: PASS
 - lint: PASS
@@ -176,21 +178,29 @@ GitHub Actions Run #9 on the latest search-hardening test commit:
 - production build: PASS
 - overall conclusion: SUCCESS
 
+Latest GitHub Actions Run #12 on documentation/current branch state:
+- overall conclusion: SUCCESS
+
 Supabase:
 - Security Advisor: 0 lints
 - table-level DELETE/TRUNCATE privileges for authenticated: false on clients and client_notes
 - organization_id and created_by_user_id are not UPDATE-granted
 - client_notes organization_id and author_user_id are not UPDATE-granted
+- activity event SELECT is tenant-scoped to organization membership
+- activity-event writer is a private SECURITY DEFINER trigger function with public/anon/authenticated EXECUTE revoked
+- activity_events remains without direct INSERT privilege for authenticated clients
 - disposable authenticated-context RLS proof:
   - own_visible = 1
   - cross_visible = 0
   - cross_insert_visible = 0
   - cross_update_visible = 0
   - cross_note_visible = 0
-- synthetic proof transaction was rolled back; synthetic user/org/client counts after the test are all zero.
+- synthetic proof transaction was rolled back; synthetic user/org/client counts after the test were all zero.
 
 ## Client Core gate
 **Technical implementation gate: PASS.**
+
+**Activity/audit hardening gate: PASS.**
 
 **Application-level browser Auth flow: NOT VERIFIED.**
 
@@ -199,7 +209,7 @@ Reason:
 - The exposed environment has no browser automation connector.
 - No temporary auth method is enabled merely to manufacture a passing test.
 
-Therefore PR #2 remains open and Milestone 2 remains ACTIVE. Do not advance to Appointment Core until the browser-level authenticated flow is evidenced.
+Therefore PR #2 remains open and Milestone 2 remains ACTIVE. Do not advance to Appointment Core until browser-level authenticated create → retrieve → edit → note → search flow is evidenced.
 
 ## Commercial continuity
 Commercial validation remains PARTIAL.
