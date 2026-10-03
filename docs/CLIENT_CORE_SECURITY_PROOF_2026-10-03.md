@@ -63,12 +63,22 @@ org_id_insert=false
 
 This closes an identity-column mutation path at the database grant layer rather than relying only on application types.
 
+## Workspace creation integrity proof
+
+A disposable authenticated-context transaction verified the real `public.create_organization(...)` RPC after the workspace hardening migration. It successfully created the organization, created exactly one `owner` membership, and returned the organization only after the membership existed. A separate direct organization INSERT test also produced the owner membership through the internal trigger. An attempted owner self-membership with `role='member'` was rejected with SQLSTATE `42501`.
+
+All workspace tests were wrapped in `ROLLBACK`; the live database remained empty.
+
+## Client lifecycle proof
+
+A second disposable authenticated transaction executed Client Core mutations through the actual RLS boundary: create client → add note → update/archive client → update note. The resulting assertions were `client_ok=1`, `note_ok=1`, and `audit_events=4`. The transaction was rolled back.
+
 ## Profile trigger hardening
 
 The live `private.handle_new_user_profile()` SECURITY DEFINER trigger now has `search_path=pg_catalog, public`, reducing name-resolution surface while preserving trigger execution. Direct EXECUTE remains revoked for public, anon and authenticated roles.
 
 ## Current gate interpretation
 
-CI Run #91 passes the latest profile-trigger hardening. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
+CI Run #91 passes the latest profile-trigger hardening. The subsequent workspace-integrity migrations are covered by the current CI stream. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
 
 The remaining application-level evidence is a real login/signup browser flow against the NUS Auth service. NUS currently contains zero persisted auth users, and no browser automation connector is exposed in this environment; therefore that evidence is intentionally not claimed.
