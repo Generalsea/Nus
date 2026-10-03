@@ -1,13 +1,18 @@
-const WORKSPACE_HASH_OFFSET = 14695981039346656037n
-const WORKSPACE_HASH_PRIME = 1099511628211n
+const WORKSPACE_HASH_PRIME = 16777619
+
+function hashWorkspaceText(value: string, seed: number): number {
+  let hash = seed >>> 0
+  for (const char of value.trim()) {
+    hash ^= char.codePointAt(0) ?? 0
+    hash = Math.imul(hash, WORKSPACE_HASH_PRIME)
+  }
+  return hash >>> 0
+}
 
 function fallbackWorkspaceSlug(value: string): string {
-  let hash = WORKSPACE_HASH_OFFSET
-  for (const char of value.trim()) {
-    hash ^= BigInt(char.codePointAt(0) ?? 0)
-    hash = BigInt.asUintN(64, hash * WORKSPACE_HASH_PRIME)
-  }
-  return 'workspace-' + hash.toString(36)
+  const first = hashWorkspaceText(value, 2166136261)
+  const second = hashWorkspaceText(value, 2246822519)
+  return 'workspace-' + first.toString(36) + '-' + second.toString(36)
 }
 
 export function slugify(value: string): string {
