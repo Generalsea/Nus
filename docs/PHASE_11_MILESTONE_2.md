@@ -1,68 +1,28 @@
 # Phase 11 — Milestone 2 — Client Core
 
 ## Status
-
-**ACTIVE — technical, audit, and timezone gates passed; browser authenticated-flow evidence pending.**
-
-## Scope implemented
-
-- client creation
-- client editing
-- client retrieval
-- client search by name/phone/email
-- client detail
-- notes
-- timeline/activity
-- workspace timezone validation and client timeline timezone rendering
+ACTIVE — technical, security, timezone and Auth UI gates passed; browser authenticated-flow evidence pending.
 
 ## Acceptance criteria
-
 A real authenticated user can create and retrieve only authorized client records.
 
-## Security evidence
-
-PASS:
-- cross-tenant client reads return no unauthorized records
-- cross-tenant client updates cannot mutate a record
-- cross-tenant note attachment is rejected
-- organization/authorship update keys are not granted to authenticated clients
-- DELETE/TRUNCATE table privileges are not granted
-- RLS is enabled on Client Core tables
-- Supabase Security Advisor reports 0 lints
-- activity_events is readable only by authenticated organization members
-- authenticated users cannot INSERT, UPDATE, or DELETE activity_events
-- activity lifecycle recording is performed by a private SECURITY DEFINER trigger with a fixed search path and revoked direct EXECUTE
-- organizations.timezone is constrained to valid IANA time zones
-
-A disposable authenticated-context transaction was rolled back after verification. No synthetic users, organizations or clients remain.
-
-## Engineering verification
-
-PASS:
-- typecheck
-- lint
-- unit tests
-- production build
-- GitHub Actions Run #23 = SUCCESS
+## Passed evidence
+- Client creation/edit/retrieval/search/detail/notes/timeline implemented.
+- Cross-tenant RLS proof passed and was rolled back.
+- Activity event write surface is append-only for end users.
+- Foundation and Client Core grants are least-privilege.
+- Security Advisor = 0 lints.
+- IANA timezone validation is enforced in app and DB.
+- GitHub Actions Run #23 = SUCCESS.
+- GitHub Actions Run #29 = SUCCESS.
+- Existing login screen now includes email/password signup, password confirmation, neutral errors, confirmation messaging, and safe callback return path.
 
 ## Remaining gate
+Browser-level authenticated persistence is NOT VERIFIED.
 
-**Browser-level authenticated persistence is NOT VERIFIED.**
+Required real flow:
+Login/Signup → Workspace → Create Client → Retrieve → Edit → Add Note → Search.
 
-NUS currently has zero persisted Auth users and this environment exposes no browser automation connector. Enabling anonymous Auth solely to fabricate a passing E2E test would change the product/security surface and is therefore not being done.
+NUS currently has zero Auth users and no browser automation connector is available in this execution environment. Email signup testing also depends on the actual callback URL being allowed by Supabase Auth Redirect URLs.
 
-The PR remains open until browser-level authenticated create → retrieve → edit → note → search flow is evidenced.
-
-## Non-scope
-
-- appointments
-- reminders
-- follow-up engine
-- AI actions
-- notification providers
-- tags/custom fields
-- pipeline/opportunity management
-
-## Commercial continuity
-
-Client data preserves lead_source for later acquisition and workflow analysis without speculative CRM scoring. Commercial validation remains PARTIAL and pricing remains a hypothesis until real customer evidence exists.
+Do not advance to Appointment Core or merge PR #2 until this final authenticated browser proof exists.
