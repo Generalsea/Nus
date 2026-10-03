@@ -122,6 +122,7 @@ The platform-managed supabase_admin default-privilege owner boundary remains doc
 - GitHub Actions Run #81: SUCCESS — latest Client Core state, HTTP security headers, root error/not-found boundaries, grant hardening, and owner-membership guard all passed CI.
 - GitHub Actions Run #83: SUCCESS — profile timezone hardening passed CI; live DB constraint was verified.
 - GitHub Actions Run #84: SUCCESS — latest search wildcard sanitization passed npm audit, typecheck, lint, unit tests, and production build.
+- GitHub Actions Run #87: SUCCESS — fail-closed authenticated E2E guard and workspace-name validation passed npm audit, typecheck, lint, unit tests, and production build.
 - Static high-risk repository scan found no matches for service-role credentials, dangerouslySetInnerHTML, innerHTML, eval(, or new Function(.
 - package-lock.json is committed and lockfile v3; npm ci is reproducible.
 - npm audit high-severity gate is enabled and currently passes.
@@ -144,7 +145,7 @@ The application/Auth execution did not proceed because all four configured GitHu
 
 The application therefore failed its own environment validation, and the test failed before login. No database mutation occurred. The live database was rechecked afterward and remains empty.
 
-The temporary test workflow was deleted immediately after the attempt. The permanent manual E2E workflow now fails fast with explicit missing-secret errors.
+The temporary test workflow was deleted immediately after the attempt. The permanent manual E2E workflow now fails fast with explicit missing-secret errors and requires the designated E2E workspace name. The browser test aborts before client mutation when the signed-in account does not resolve to that E2E workspace.
 
 ## Release hardening gates
 
