@@ -38,6 +38,14 @@ export default async function ClientDetailPage({
 
   if (!membership) redirect('/today')
 
+  const { data: workspace } = await supabase
+    .from('organizations')
+    .select('timezone')
+    .eq('id', membership.organization_id)
+    .maybeSingle()
+
+  if (!workspace) redirect('/today')
+
   const { id } = await params
 
   const [clientResult, notesResult, eventsResult] = await Promise.all([
@@ -54,7 +62,8 @@ export default async function ClientDetailPage({
       .select('id, body, created_at, updated_at')
       .eq('client_id', id)
       .eq('organization_id', membership.organization_id)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
     supabase
       .from('activity_events')
       .select('id, event_name, entity_type, entity_id, created_at')
@@ -76,7 +85,9 @@ export default async function ClientDetailPage({
     client.preferred_contact_method as PreferredContactMethod | null
 
   const timeline = [
-    ...(eventsResult.data ?? []).map((event) => ({
+    ...(eventsResult.data ?? [])
+      .filter((event) => event.entity_type === 'client')
+      .map((event) => ({
       id: 'event-' + event.id,
       kind: 'event' as const,
       at: event.created_at,
@@ -241,7 +252,9 @@ export default async function ClientDetailPage({
                         dateTime={item.at}
                         className="text-xs font-bold text-gray-400"
                       >
-                        {new Date(item.at).toLocaleString('ar-EG')}
+                        {new Date(item.at).toLocaleString('ar-EG', {
+                          timeZone: workspace.timezone,
+                        })}
                       </time>
                     </div>
                     {item.body ? (
