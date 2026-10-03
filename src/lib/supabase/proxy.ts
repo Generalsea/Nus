@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getEnv } from '@/lib/env'
 import type { Database } from '@/lib/supabase/database'
 
+function redirectNoStore(url: URL) {
+  const response = NextResponse.redirect(url)
+  response.headers.set('Cache-Control', 'private, no-store')
+  return response
+}
+
 export async function updateSession(request: NextRequest) {
   const env = getEnv()
   let supabaseResponse = NextResponse.next({ request })
@@ -39,15 +45,16 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    url.search = ''
     url.searchParams.set('next', pathname)
-    return NextResponse.redirect(url)
+    return redirectNoStore(url)
   }
 
   if (user && pathname === '/login') {
     const url = request.nextUrl.clone()
     url.pathname = '/today'
     url.search = ''
-    return NextResponse.redirect(url)
+    return redirectNoStore(url)
   }
 
   supabaseResponse.headers.set('Cache-Control', 'private, no-store')
