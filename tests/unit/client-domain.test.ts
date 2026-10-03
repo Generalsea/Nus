@@ -6,8 +6,8 @@ describe('client domain helpers', () => {
     expect(normalizeClientSearch('  Ahmed,(test)%_  ')).toBe('Ahmed test')
   })
 
-  it('strips backslashes used by filter grammars', () => {
-    expect(normalizeClientSearch('Ahmed\\test')).toBe('Ahmed test')
+  it('strips backslashes and wildcards used by filter grammars', () => {
+    expect(normalizeClientSearch('Ahmed\\test*')).toBe('Ahmed test')
   })
 
   it('bounds search length', () => {
