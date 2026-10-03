@@ -10,6 +10,10 @@ test.describe('Client Core authenticated flow', () => {
   test('login → workspace → client create → edit → note → search', async ({ page }) => {
     const email = requiredEnv('NUS_E2E_EMAIL')
     const password = requiredEnv('NUS_E2E_PASSWORD')
+    const workspaceName = requiredEnv('NUS_E2E_WORKSPACE_NAME')
+    if (!workspaceName.startsWith('E2E ')) {
+      throw new Error('NUS_E2E_WORKSPACE_NAME must start with "E2E " to prevent accidental real-workspace mutation')
+    }
     const unique = Date.now().toString(36)
     const clientName = `E2E Client ${unique}`
     const workspaceName = `E2E Workspace ${unique}`
@@ -30,6 +34,9 @@ test.describe('Client Core authenticated flow', () => {
       await createWorkspaceButton.click()
       await expect(page.getByText(workspaceName)).toBeVisible()
     }
+
+    // Fail closed: a pre-existing non-E2E workspace must never be mutated.
+    await expect(page.getByText(workspaceName, { exact: true })).toBeVisible()
 
     await page.getByRole('link', { name: 'العملاء' }).click()
     await expect(page).toHaveURL(/\/clients$/)

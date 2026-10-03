@@ -11,6 +11,7 @@ This is the real authenticated Client Core gate. It must run against a dedicated
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — required by the application runtime.
 - `NUS_E2E_EMAIL` — confirmed Supabase Auth test account.
 - `NUS_E2E_PASSWORD` — password for that account.
+- `NUS_E2E_WORKSPACE_NAME` — dedicated workspace name; it must start with `E2E `.
 
 The Auth test account must already be confirmed. Do not insert rows directly into `auth.users` and do not use service-role credentials in browser tests.
 
@@ -18,7 +19,7 @@ The Auth test account must already be confirmed. Do not insert rows directly int
 
 Login → Today → Workspace onboarding when needed → Clients → Create client → Retrieve → Edit → Add note → Search.
 
-The test uses unique names so a failed run does not depend on pre-existing client records.
+The test uses unique names so a failed run does not depend on pre-existing client records. Before any client mutation, it verifies that the account is in the explicitly designated `E2E ...` workspace; a different pre-existing workspace causes an immediate failure.
 
 ## Gate interpretation
 
