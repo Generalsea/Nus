@@ -1,7 +1,7 @@
 # Phase 11 — Milestone 2 — Client Core
 
 ## Status
-ACTIVE — technical, security, timezone and Auth UI gates passed; browser authenticated-flow evidence pending.
+ACTIVE — Client Core implementation and database hardening are passing; authenticated browser persistence and repository governance evidence remain pending.
 
 ## Acceptance criteria
 A real authenticated user can create and retrieve only authorized client records.
@@ -20,12 +20,16 @@ A real authenticated user can create and retrieve only authorized client records
 - GitHub Actions Run #49 = SUCCESS after Today/Client error-state hardening and E2E harness addition.
 - GitHub Actions Run #51 = SUCCESS on the resulting baseline.
 - Existing login screen now includes email/password signup, password confirmation, neutral errors, confirmation messaging, and safe callback return path.
+- Workspace context is centralized and selected workspace IDs are server-validated against the signed-in user's memberships.
+- Foundation identity/timestamp update grants are locked down at the database boundary.
+- GitHub Actions Run #72 = SUCCESS after the latest Client Core hardening.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
 - Auth redirect responses are marked `private, no-store` and `/auth` public matching is exact.
 - `main` is not currently verified as protected in GitHub; do not merge based on repository governance assumptions.
-- `package-lock.json` is committed; Run #51 verified `npm ci` successfully on the resulting baseline.
+- `package-lock.json` is committed; current CI uses `npm ci` and a high-severity `npm audit` gate.
+- Signout clears the server workspace-context cookie so a subsequent account cannot inherit stale browser context.
 
 ## E2E readiness
 - Playwright authenticated Client Core flow is implemented.
