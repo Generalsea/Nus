@@ -16,7 +16,7 @@ export const CONTACT_METHOD_LABELS: Record<PreferredContactMethod, string> = {
 export function normalizeClientSearch(value: string): string {
   return value
     .trim()
-    .replace(/[,%_()'"]/g, ' ')
+    .replace(/[,%_()'"\\]/g, ' ')
     .replace(/\s+/g, ' ')
     .slice(0, 80)
     .trim()
