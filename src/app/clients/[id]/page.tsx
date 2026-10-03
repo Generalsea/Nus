@@ -27,6 +27,7 @@ export default async function ClientDetailPage({
 
   if (!context.user) redirect('/login')
   if (!context.current) redirect('/today')
+  const currentWorkspace = context.current
 
   const { id } = await params
 
@@ -250,7 +251,7 @@ export default async function ClientDetailPage({
                         className="text-xs font-bold text-gray-400"
                       >
                         {new Date(item.at).toLocaleString('ar-EG', {
-                          timeZone: context.current.timezone,
+                          timeZone: currentWorkspace.timezone,
                         })}
                       </time>
                     </div>
