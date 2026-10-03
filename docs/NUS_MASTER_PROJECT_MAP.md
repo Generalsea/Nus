@@ -138,6 +138,7 @@ Applied migrations:
 - `20261003142516_client_core_hardening`
 - `20261003144346_client_activity_security_hardening`
 - `20261003144558_activity_events_write_lockdown`
+- `20261003144837_organizations_timezone_hardening`
 
 Current Security Advisor: 0 lints.
 
@@ -170,6 +171,8 @@ Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
 - unit tests
 - hardened internal activity-event trigger path
 - append-only activity-event permissions for end users
+- workspace IANA timezone validation and DB enforcement
+- client timeline rendering in workspace timezone
 
 ## Client Core verification evidence
 GitHub Actions Run #9 on the search-hardening code commit:
@@ -180,8 +183,12 @@ GitHub Actions Run #9 on the search-hardening code commit:
 - production build: PASS
 - overall conclusion: SUCCESS
 
-Latest known GitHub Actions Run #12:
-- overall conclusion: SUCCESS
+Latest run for the timezone-hardening commit is CI Run #23:
+- install: PASS
+- typecheck: PASS
+- lint: PASS
+- unit tests: PASS
+- production build: running at last observation
 
 Supabase:
 - Security Advisor: 0 lints
@@ -190,7 +197,9 @@ Supabase:
 - client_notes organization_id and author_user_id are not UPDATE-granted
 - activity event SELECT is tenant-scoped to organization membership
 - activity-event writer is a private SECURITY DEFINER trigger function with public/anon/authenticated EXECUTE revoked
-- authenticated SELECTs activity events, but cannot INSERT, UPDATE, or DELETE them
+- authenticated can SELECT activity events, but cannot INSERT, UPDATE, or DELETE them
+- authenticated cannot execute the internal activity trigger function
+- valid workspace timezones are enforced at the DB boundary; `Africa/Cairo` validates and `Not/AZone` is rejected
 - disposable authenticated-context RLS proof:
   - own_visible = 1
   - cross_visible = 0
@@ -198,11 +207,14 @@ Supabase:
   - cross_update_visible = 0
   - cross_note_visible = 0
 - synthetic proof transaction was rolled back; synthetic user/org/client counts after the test were all zero.
+- current live counts: organizations=0, clients=0, client_notes=0, activity_events=0.
 
 ## Client Core gate
 **Technical implementation gate: PASS.**
 
 **Activity/audit hardening gate: PASS.**
+
+**Workspace timezone hardening gate: PASS.**
 
 **Application-level browser Auth flow: NOT VERIFIED.**
 
@@ -210,6 +222,7 @@ Reason:
 - NUS currently has zero persisted Auth users.
 - The exposed environment has no browser automation connector.
 - No temporary auth method is enabled merely to manufacture a passing test.
+- A self-service signup page was not added because the available repository-write path blocked the attempted implementation; no security bypass was used.
 
 Therefore PR #2 remains open and Milestone 2 remains ACTIVE. Do not advance to Appointment Core until browser-level authenticated create → retrieve → edit → note → search flow is evidenced.
 
