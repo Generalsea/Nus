@@ -1,4 +1,10 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   public: {
@@ -46,6 +52,7 @@ export type Database = {
           slug: string
           owner_id: string
           timezone?: string
+          locale?: string
           created_at?: string
           updated_at?: string
         }
@@ -55,7 +62,6 @@ export type Database = {
           slug?: string
           owner_id?: string
           timezone?: string
-          created_at?: string
           updated_at?: string
         }
         Relationships: []
@@ -113,6 +119,104 @@ export type Database = {
           created_at?: string
         }
         Relationships: []
+      }
+      clients: {
+        Row: {
+          id: string
+          organization_id: string
+          created_by_user_id: string
+          full_name: string
+          phone: string | null
+          email: string | null
+          preferred_contact_method: string | null
+          status: string
+          lead_source: string | null
+          created_at: string
+          updated_at: string
+          archived_at: string | null
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          created_by_user_id: string
+          full_name: string
+          phone?: string | null
+          email?: string | null
+          preferred_contact_method?: string | null
+          status?: string
+          lead_source?: string | null
+          created_at?: string
+          updated_at?: string
+          archived_at?: string | null
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          created_by_user_id?: string
+          full_name?: string
+          phone?: string | null
+          email?: string | null
+          preferred_contact_method?: string | null
+          status?: string
+          lead_source?: string | null
+          created_at?: string
+          updated_at?: string
+          archived_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_notes: {
+        Row: {
+          id: string
+          organization_id: string
+          client_id: string
+          author_user_id: string
+          body: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          client_id: string
+          author_user_id: string
+          body: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          client_id?: string
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: Record<string, never>
