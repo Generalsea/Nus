@@ -7,12 +7,13 @@
 - GitHub: `Generalsea/Nus`
 - GitHub URL: https://github.com/Generalsea/Nus
 - Supabase project: `NUS`
-- Supabase project ref: `oghiyggxhxoxdysustkv`
+- Supabase ref: `oghiyggxhxoxdysustkv`
 - Supabase region: `eu-central-1`
 - Supabase URL: `https://oghiyggxhxoxdysustkv.supabase.co`
-- Default GitHub branch: `main`
+- Default branch: `main`
 - Active phase: Phase 11 — Code Implementation
-- Active milestone: Milestone 1 — Foundation
+- Active milestone: Milestone 2 — Client Core
+- Previous gate: Milestone 1 — Foundation = PASS
 - Production status: NOT PRODUCTION READY
 - Commercial validation: PARTIAL
 
@@ -20,13 +21,9 @@
 NUS is independent from DEBA and every other project.
 
 Never use or copy:
-- DEBA source tree
-- DEBA branches
-- DEBA migrations
+- DEBA source tree, branches, migrations, environment files or credentials
 - DEBA Supabase project `gkwpjtbrecoesxyoybto`
-- DEBA environment files
-- DEBA credentials
-- DEBA runtime state
+- DEBA runtime or deployment state
 
 The NUS database is `oghiyggxhxoxdysustkv` only.
 
@@ -46,21 +43,21 @@ SIMPLICITY > ARCHITECTURAL COMPLEXITY
 CUSTOMER OUTCOME > TECHNICAL SHOWCASE
 RECURRING VALUE > ONE-TIME NOVELTY
 
-## Current Phase State
+## Phase state
 | Phase | Status |
 |---|---|
 | 0 Project Framing | PASS |
 | 1 Market + Micro-Niche Research | PASS |
-| 2 Customer Problem Validation | PARTIAL |
+| 2 Customer Problem Validation | PARTIAL — direct 10–15 customer validation remains open |
 | 3 Competitor + Whitespace | PASS |
 | 4 Product Definition | PASS |
 | 5 Killer Feature + Retention | PASS |
-| 6 Business Model + Economics | PASS (planning) |
+| 6 Business Model + Economics | PASS (planning; pricing remains hypothesis) |
 | 7 UX / Journey | PASS |
 | 8 Technical Architecture | PASS — modular monolith |
 | 9 Database + Security Design | PASS |
 | 10 MVP Implementation Plan | PASS |
-| 11 Code Implementation | ACTIVE — Milestone 1 |
+| 11 Code Implementation | ACTIVE — Milestone 2 Client Core |
 | 12 Testing + Bug Fixing | PENDING |
 | 13 Security + Performance Audit | PENDING |
 | 14 Deployment | PENDING |
@@ -68,94 +65,120 @@ RECURRING VALUE > ONE-TIME NOVELTY
 | 16 Growth + Iteration | PENDING |
 
 ## MVP boundary
-MUST HAVE: auth, workspace, clients, appointments, Today, follow-up, reminders, notification abstraction, notes/history, audit, validation/errors, analytics foundation.
+MUST HAVE:
+- authentication
+- workspace
+- clients
+- appointments
+- Today
+- follow-up
+- reminders
+- notification abstraction
+- notes/history
+- activity/audit
+- validation/errors
+- analytics foundation
 
-NOT YET: microservices, native apps, full CRM/ERP, autonomous AI, large integration marketplace, complex enterprise RBAC, social features, advanced BI.
+DO NOT BUILD YET:
+- microservices
+- native mobile apps
+- full CRM/ERP
+- autonomous AI agent
+- huge workflow builder
+- large integration marketplace
+- complex enterprise RBAC
+- social features
+- advanced BI
+- unnecessary customization
 
-## Milestones
-1. Foundation
-2. Client Core
-3. Appointment Core
-4. Today Engine
-5. Follow-up + Automation
-6. Notification Provider
-7. AI Action Layer
+## Milestone roadmap
+1. Foundation — PASS
+2. Client Core — ACTIVE
+3. Appointment Core — PENDING
+4. Today Engine — PENDING
+5. Follow-up + Automation — PENDING
+6. Notification Provider — PENDING
+7. AI Action Layer — PENDING
 
-## Current Foundation implementation
-Applied to NUS Supabase:
-- profiles
-- organizations
-- organization_members
-- activity_events
-- profile auto-provision trigger
-- updated_at triggers
-- tenant-aware RLS policies
-- atomic `public.create_organization(...)` function using SECURITY INVOKER
-- private helper function EXECUTE privileges revoked from public/anon/authenticated
+## Client Core decision
+Clients are tenant-owned operational records, not a full CRM contact object.
 
-## Verification evidence
-- Supabase project status: ACTIVE_HEALTHY
-- PostgreSQL: 17.11.0.002
-- Foundation tables verified with RLS enabled
-- Security advisor after migration: 0 lints
-- Performance advisor currently reports unused indexes only because the tables are empty; this is expected pre-usage telemetry, not a correctness defect
-- Applied migrations: `20261003133448`, `20261003133636`, `20261003134008`
+Stored fields:
+- organization_id
+- created_by_user_id
+- full_name
+- phone
+- email
+- preferred_contact_method
+- status (active / archived)
+- lead_source
+- timestamps
 
-## GitHub write status
-GitHub write access is **RESOLVED**. The authenticated account has `admin` permission on `Generalsea/Nus`, branch `feature/phase-11-foundation` was created, commit `ad8e451b535772e1a995da2f4cbc04d8d31780ad` was published, and PR #1 was opened for the foundation changes.
+Notes are separate `client_notes` records.
+Client activity is recorded transactionally into `activity_events`.
+
+No tags, scoring, pipeline stages, custom fields or opportunity objects are introduced in Client Core.
+
+## Current NUS Supabase schema
+Foundation:
+- public.profiles
+- public.organizations
+- public.organization_members
+- public.activity_events
+
+Client Core:
+- public.clients
+- public.client_notes
+
+Applied migrations:
+- `20261003133448_foundation_core`
+- `20261003133636_foundation_workspace_atomic`
+- `20261003134008_foundation_function_hardening`
+- `20261003142451_client_core`
+- `20261003142516_client_core_hardening`
+
+Current Security Advisor: 0 lints.
+
+Current Performance Advisor: INFO-only unused indexes on low/zero-volume tables; no missing foreign-key index findings remain after Client Core hardening.
+
+## Foundation verification evidence
+GitHub Actions Run #4:
+- npm install: PASS
+- typecheck: PASS
+- lint: PASS
+- unit tests: PASS — 3 suites / 11 tests
+- production build: PASS — Next.js 16.3.8
+
+The Foundation PR #1 was merged to `main`.
+
+## Client Core gate
+Client Core remains OPEN until:
+- real authenticated persistence is verified
+- cross-tenant access denial is evidenced
+- create/edit/retrieve/search/detail/notes/timeline flows are verified
+- CI typecheck/lint/tests/build pass on the Client Core branch
+- no mock production state is introduced
+
+## Commercial continuity
+Commercial validation remains PARTIAL.
+Pricing and unit-economics numbers remain planning hypotheses until real customer evidence is collected.
+Technical completion is not product-market validation.
+
+## Strategic continuity
+The exact canonical micro-niche wording from the prior strategic research must not be invented. It is a documentation-recovery item, not permission to restart discovery.
+
+## Definition of Done
+Every feature requires:
+UI + backend behavior + validation + authorization + DB integrity + loading/empty/error/failure states + audit/event behavior + relevant tests + static checks + build + real flow verification + regression.
 
 ## Continuity protocol
 At the start of every future NUS conversation:
 1. Read this file.
 2. Inspect current `Generalsea/Nus` state.
-3. Inspect the NUS Supabase project only.
+3. Inspect NUS Supabase only.
 4. Determine the last passed gate.
 5. Continue from that exact milestone.
-6. Do not restart Phase 0–10 without explicit evidence that a gate reopened.
+6. Never restart Phase 0–10 without explicit evidence that a gate reopened.
 
-## Engineering loop
-INSPECT → PLAN → DESIGN → IMPLEMENT → TEST → VERIFY → DOCUMENT → PROCEED.
-
----
-
-# 29. LIVE PLATFORM STATUS — 2026-10-03
-
-## GitHub
-
-The canonical repository is `Generalsea/Nus`. The repository is public and its default branch is `main`.
-
-The ChatGPT GitHub integration can now read and write `Generalsea/Nus` through the authorized account. Repository permission is `admin`, and the foundation branch was created successfully.
-
-No credential is guessed, extracted, or bypassed.
-
-## Local source of truth
-
-The verified local implementation branch is:
-
-`feature/phase-11-foundation`
-
-The local repository has a valid `origin` pointing to `https://github.com/Generalsea/Nus.git`.
-
-The local foundation commits are preserved and bundled separately when required.
-
-## Dependency verification
-
-The execution container still cannot reach the npm registry and has no local dependency cache. Dependency-backed verification remains unavailably local, but connected GitHub Actions has now resolved and executed the full dependency-backed CI sequence successfully.
-
-### Latest verification checkpoint — 2026-10-03
-- Local syntax parser: `20/20 PASS` across tracked `.ts`, `.tsx`, and `.mjs` implementation/test/migration files.
-- JSON parsing: `package.json` + `tsconfig.json` = `2/2 PASS`.
-- Redirect security runtime cases: `6/6 PASS`.
-- `git diff --check`: PASS.
-- GitHub Actions Run #4: **SUCCESS** on commit `ad8e451b535772e1a995da2f4cbc04d8d31780ad`.
-- Connected runner: Node.js `22.23.3`, npm `10.9.9`.
-- `npm install --no-audit --no-fund`: PASS; `404` packages resolved.
-- `npm run typecheck`: PASS.
-- `npm run lint`: PASS.
-- `npm test`: PASS — `3` suites / `11` tests.
-- `npm run build`: PASS — Next.js `16.3.8` production build.
-- `package-lock.json` remains absent; CI intentionally uses connected `npm install` during bootstrap. Capture a committed lockfile before production-hardening/deployment.
-
-## Foundation gate
-
-Milestone 1 — Foundation is **PASS**. Browser E2E remains a later application-flow verification item and does not reopen the completed Foundation gate. Production readiness remains **NOT PRODUCTION READY** and commercial validation remains **PARTIAL**.
+## Operating command
+`أغابي` = continue from the next unpassed NUS milestone using repository and Supabase evidence.
