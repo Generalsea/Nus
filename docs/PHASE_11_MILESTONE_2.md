@@ -2,38 +2,51 @@
 
 ## Status
 
-ACTIVE
+**ACTIVE — technical gate passed; browser authenticated-flow evidence pending.**
 
-## Scope
+## Scope implemented
 
 - client creation
 - client editing
 - client retrieval
-- client search
+- client search by name/phone/email
 - client detail
 - notes
-- timeline
+- timeline/activity
 
 ## Acceptance criteria
 
 A real authenticated user can create and retrieve only authorized client records.
 
-## Required security proof
+## Security evidence
 
-1. Cross-tenant client reads return no unauthorized records.
-2. Cross-tenant client updates cannot mutate a record.
-3. Client notes cannot be attached across tenant boundaries.
-4. Organization and authorship keys are not writable through normal client grants.
+PASS:
+- cross-tenant client reads return no unauthorized records
+- cross-tenant client updates cannot mutate a record
+- cross-tenant note attachment is rejected
+- organization/authorship update keys are not granted to authenticated clients
+- DELETE/TRUNCATE table privileges are not granted
+- RLS is enabled on both Client Core tables
+- Supabase Security Advisor reports 0 lints
 
-## Required verification
+A disposable authenticated-context transaction was rolled back after verification. No synthetic users, organizations or clients remain.
 
+## Engineering verification
+
+PASS:
 - typecheck
 - lint
 - unit tests
 - production build
-- real persistence flow
-- authorization proof
-- no mock production state
+- latest GitHub Actions Run #9 = SUCCESS
+
+## Remaining gate
+
+**Browser-level authenticated persistence is NOT VERIFIED.**
+
+NUS currently has zero persisted Auth users and this environment exposes no browser automation connector. Enabling anonymous Auth solely to fabricate a passing E2E test would change the product/security surface and is therefore not being done.
+
+The PR remains open until browser-level authenticated create → retrieve → edit → note → search flow is evidenced.
 
 ## Non-scope
 
@@ -47,4 +60,4 @@ A real authenticated user can create and retrieve only authorized client records
 
 ## Commercial continuity
 
-Client data is intentionally shaped to preserve later acquisition-source and workflow conversion evidence without adding speculative CRM scoring.
+Client data preserves lead_source for later acquisition and workflow analysis without speculative CRM scoring. Commercial validation remains PARTIAL and pricing remains a hypothesis until real customer evidence exists.
