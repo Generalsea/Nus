@@ -93,6 +93,7 @@ Security: tenant-scoped RLS, server-validated workspace selection, column-level 
 - 20261003145121 foundation_grants_lockdown
 - 20261003145225 public_default_privileges_lockdown
 - 20261003160304 foundation_identity_grants_lockdown
+- 20261003160522 organization_owner_membership_guard
 
 The platform-managed supabase_admin default-privilege owner boundary remains documented; the application-owned migration path has explicit least-privilege defaults.
 
@@ -108,12 +109,14 @@ The platform-managed supabase_admin default-privilege owner boundary remains doc
 - Workspace selection is stored in a server-only cookie and revalidated against the authenticated user's membership before use.
 - Client insert no longer attempts to write the insert-protected `archived_at` column.
 - Foundation `profiles` and `organizations` identity/ownership/timestamp columns are excluded from authenticated UPDATE grants.
+- Workspace owners cannot delete their own membership through the Data API; only `member` memberships can self-delete until ownership transfer/lifecycle is implemented.
 - Disposable cross-tenant RLS proof passed and was rolled back.
 - Current live database counts: auth.users=0, organizations=0, clients=0, client_notes=0, activity_events=0.
 - GitHub Actions Run #66: SUCCESS — dependency audit, typecheck, lint, unit tests, and production build all passed.
 - GitHub Actions Run #67: SUCCESS on the current feature branch after final CI pinning.
 - GitHub Actions Run #68: SUCCESS after the final E2E workflow fail-fast change.
 - GitHub Actions Run #72: SUCCESS — npm audit, typecheck, lint, unit tests, and production build passed after workspace-context hardening.
+- GitHub Actions Run #81: SUCCESS — latest Client Core state, HTTP security headers, root error/not-found boundaries, grant hardening, and owner-membership guard all passed CI.
 - Static high-risk repository scan found no matches for service-role credentials, dangerouslySetInnerHTML, innerHTML, eval(, or new Function(.
 - package-lock.json is committed and lockfile v3; npm ci is reproducible.
 - npm audit high-severity gate is enabled and currently passes.
