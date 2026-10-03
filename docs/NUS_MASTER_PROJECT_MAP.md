@@ -137,6 +137,7 @@ Applied migrations:
 - `20261003142451_client_core`
 - `20261003142516_client_core_hardening`
 - `20261003144346_client_activity_security_hardening`
+- `20261003144558_activity_events_write_lockdown`
 
 Current Security Advisor: 0 lints.
 
@@ -168,6 +169,7 @@ Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
 - search input normalization
 - unit tests
 - hardened internal activity-event trigger path
+- append-only activity-event permissions for end users
 
 ## Client Core verification evidence
 GitHub Actions Run #9 on the search-hardening code commit:
@@ -178,7 +180,7 @@ GitHub Actions Run #9 on the search-hardening code commit:
 - production build: PASS
 - overall conclusion: SUCCESS
 
-Latest GitHub Actions Run #12 on documentation/current branch state:
+Latest known GitHub Actions Run #12:
 - overall conclusion: SUCCESS
 
 Supabase:
@@ -188,7 +190,7 @@ Supabase:
 - client_notes organization_id and author_user_id are not UPDATE-granted
 - activity event SELECT is tenant-scoped to organization membership
 - activity-event writer is a private SECURITY DEFINER trigger function with public/anon/authenticated EXECUTE revoked
-- activity_events remains without direct INSERT privilege for authenticated clients
+- authenticated SELECTs activity events, but cannot INSERT, UPDATE, or DELETE them
 - disposable authenticated-context RLS proof:
   - own_visible = 1
   - cross_visible = 0
