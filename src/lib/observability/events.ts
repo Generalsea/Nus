@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import type { Json } from '@/lib/supabase/database'
 
 export async function recordActivityEvent(input: {
   organizationId: string
   eventName: string
   entityType?: string
   entityId?: string
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, Json>
 }) {
   const supabase = await createClient()
   const {
