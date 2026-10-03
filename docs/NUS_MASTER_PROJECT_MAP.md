@@ -70,6 +70,15 @@ An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role
 - Synthetic proof data was rolled back; current live counts for organizations, clients, notes, and activity events are zero.
 - GitHub Actions Run #23: SUCCESS.
 - GitHub Actions Run #29: SUCCESS.
+- GitHub Actions Run #34: SUCCESS on head `c2317dfdf555c0acad7c64194e0f8a4dbff27d49`.
+- Workspace onboarding now generates an ASCII-safe deterministic slug for Arabic-only names.
+- Auth redirect responses are explicitly `private, no-store`, and the public auth matcher is limited to `/login` and `/auth/*`.
+
+## Release hardening gates
+- GitHub legacy Branch Protection reports `main` as `protected: false`.
+- GitHub repository Rulesets API currently returns no rulesets.
+- The connected GitHub tooling does not expose branch-protection/ruleset write operations, so `main` protection cannot be enabled from this execution context; do not treat `main` as protected until verified in GitHub settings.
+- `package-lock.json` is currently absent; CI uses pinned direct dependency versions but `npm install` remains non-reproducible for transitive dependencies until a lockfile is committed.
 
 ## Current gate
 Technical implementation: PASS.
