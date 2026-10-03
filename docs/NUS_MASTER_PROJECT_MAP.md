@@ -72,6 +72,7 @@ An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role
 - GitHub Actions Run #29: SUCCESS.
 - GitHub Actions Run #34: SUCCESS on head `c2317dfdf555c0acad7c64194e0f8a4dbff27d49`.
 - GitHub Actions Run #41: SUCCESS on head `6b466acea2b0c4de8df8f79ca45e954e8b05d18e`, including `npm ci`, typecheck, lint, unit tests, and production build.
+- GitHub Actions Run #51 = SUCCESS after Client/Today resilience and E2E harness additions.
 - GitHub Actions Run #49: SUCCESS on head `61c386a8f4273f05413b8406000584761dcb3671` after client/today error boundaries and authenticated E2E harness hardening.
 - `package-lock.json` (lockfile v3) is committed; CI uses `npm ci` with `contents: read`.
 - Workspace onboarding now generates an ASCII-safe deterministic slug for Arabic-only names.
@@ -81,7 +82,7 @@ An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role
 - GitHub legacy Branch Protection reports `main` as `protected: false`.
 - GitHub repository Rulesets API currently returns no rulesets.
 - The connected GitHub tooling does not expose branch-protection/ruleset write operations, so `main` protection cannot be enabled from this execution context; do not treat `main` as protected until verified in GitHub settings.
-- `package-lock.json` is now committed and reproducible installs are verified by Run #41.
+- `package-lock.json` is now committed and reproducible installs are verified by Runs #41 and #51.
 
 ## Current gate
 Technical implementation: PASS.
@@ -90,6 +91,7 @@ Timezone hardening: PASS.
 Least-privilege hardening: PASS.
 Self-service Auth UI: PASS at code/CI level.
 E2E infrastructure: PASS — Playwright config, authenticated Client Core flow, and manual GitHub Actions E2E workflow are present; real execution remains pending.
+Latest quality verification: GitHub Actions Run #51 = SUCCESS on the current code/docs baseline.
 Browser-level authenticated persistence: NOT VERIFIED.
 
 Reason: NUS currently has zero persisted Auth users and the connected execution environment exposes no browser automation connector. Anonymous Auth is not enabled merely to manufacture E2E evidence.
