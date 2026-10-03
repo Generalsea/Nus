@@ -2,46 +2,21 @@
 
 ## Current authoritative state — 2026-10-03
 
-### Identity
 - Product: NUS
-- GitHub: `Generalsea/Nus`
-- GitHub URL: https://github.com/Generalsea/Nus
-- Supabase project: `NUS`
-- Supabase ref: `oghiyggxhxoxdysustkv`
-- Supabase region: `eu-central-1`
-- Supabase URL: `https://oghiyggxhxoxdysustkv.supabase.co`
-- Default branch: `main`
+- GitHub: Generalsea/Nus
+- Supabase project: NUS
+- Supabase ref: oghiyggxhxoxdysustkv
+- Default branch: main
 - Active phase: Phase 11 — Code Implementation
 - Active milestone: Milestone 2 — Client Core
-- Previous gate: Milestone 1 — Foundation = PASS
 - Production status: NOT PRODUCTION READY
 - Commercial validation: PARTIAL
 
 ## Hard isolation
-NUS is independent from DEBA and every other project.
-
-Never use or copy:
-- DEBA source tree, branches, migrations, environment files or credentials
-- DEBA Supabase project `gkwpjtbrecoesxyoybto`
-- DEBA runtime or deployment state
-
-The NUS database is `oghiyggxhxoxdysustkv` only.
+NUS is independent from DEBA and every other project. Never use DEBA source, migrations, credentials, runtime state, branches, or Supabase ref gkwpjtbrecoesxyoybto.
 
 ## Product North Star
 > I open NUS every morning because it tells me what matters today, protects me from missing opportunities, and removes repetitive administrative work.
-
-## Core loop
-Morning → Today priorities → appointments → at-risk clients → follow-ups → action → interaction → note/outcome → next action → reminder/automation → return tomorrow.
-
-## Product laws
-PRODUCT VALUE > FEATURE COUNT
-RETENTION > NOVELTY
-REAL DEMAND > PERSONAL OPINION
-PROOF > ASSUMPTION
-RELIABILITY > CODING SPEED
-SIMPLICITY > ARCHITECTURAL COMPLEXITY
-CUSTOMER OUTCOME > TECHNICAL SHOWCASE
-RECURRING VALUE > ONE-TIME NOVELTY
 
 ## Phase state
 | Phase | Status |
@@ -52,7 +27,7 @@ RECURRING VALUE > ONE-TIME NOVELTY
 | 3 Competitor + Whitespace | PASS |
 | 4 Product Definition | PASS |
 | 5 Killer Feature + Retention | PASS |
-| 6 Business Model + Economics | PASS (planning; pricing remains hypothesis) |
+| 6 Business Model + Economics | PASS — planning; pricing remains hypothesis |
 | 7 UX / Journey | PASS |
 | 8 Technical Architecture | PASS — modular monolith |
 | 9 Database + Security Design | PASS |
@@ -64,198 +39,52 @@ RECURRING VALUE > ONE-TIME NOVELTY
 | 15 Real-World Validation | PENDING |
 | 16 Growth + Iteration | PENDING |
 
-## MVP boundary
-MUST HAVE:
-- authentication
-- workspace
-- clients
-- appointments
-- Today
-- follow-up
-- reminders
-- notification abstraction
-- notes/history
-- activity/audit
-- validation/errors
-- analytics foundation
+## Client Core
+Scope: create, edit, retrieve, search, detail, notes, timeline/activity, workspace timezone handling, self-service email/password signup on the existing auth screen.
 
-DO NOT BUILD YET:
-- microservices
-- native mobile apps
-- full CRM/ERP
-- autonomous AI agent
-- huge workflow builder
-- large integration marketplace
-- complex enterprise RBAC
-- social features
-- advanced BI
-- unnecessary customization
+Security: tenant-scoped RLS, column-level mutable fields, append-only activity events for end users, least-privilege foundation grants, no anon table access, valid IANA workspace timezone constraint.
 
-## Milestone roadmap
-1. Foundation — PASS
-2. Client Core — ACTIVE
-3. Appointment Core — PENDING
-4. Today Engine — PENDING
-5. Follow-up + Automation — PENDING
-6. Notification Provider — PENDING
-7. AI Action Layer — PENDING
+## Applied NUS migrations
+- 20261003133448 foundation_core
+- 20261003133636 foundation_workspace_atomic
+- 20261003134008 foundation_function_hardening
+- 20261003142451 client_core
+- 20261003142516 client_core_hardening
+- 20261003144346 client_activity_security_hardening
+- 20261003144558 activity_events_write_lockdown
+- 20261003144837 organizations_timezone_hardening
+- 20261003145121 foundation_grants_lockdown
+- 20261003145225 public_default_privileges_lockdown
 
-## Client Core decision
-Clients are tenant-owned operational records, not a full CRM contact object.
+An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role was denied by PostgreSQL permission boundaries. This is documented as a platform-managed owner limitation; application-created objects use the postgres owner and are covered by the NUS migration.
 
-Stored fields:
-- organization_id
-- created_by_user_id
-- full_name
-- phone
-- email
-- preferred_contact_method
-- status (active / archived)
-- lead_source
-- timestamps
+## Verification
+- Supabase Security Advisor: 0 lints.
+- All public NUS application tables have RLS enabled.
+- anon has no table privileges on NUS application tables.
+- authenticated foundation grants are least-privilege.
+- authenticated can SELECT activity events but cannot INSERT, UPDATE, or DELETE them.
+- authenticated cannot execute the private activity trigger.
+- Africa/Cairo is accepted as a workspace timezone; invalid IANA values are rejected.
+- Disposable cross-tenant RLS proof: own_visible=1, cross_visible=0, cross_insert_visible=0, cross_update_visible=0, cross_note_visible=0.
+- Synthetic proof data was rolled back; current live counts for organizations, clients, notes, and activity events are zero.
+- GitHub Actions Run #23: SUCCESS.
+- GitHub Actions Run #29: SUCCESS.
 
-Notes are separate `client_notes` records.
-Client activity is recorded transactionally into `activity_events`.
+## Current gate
+Technical implementation: PASS.
+Activity/audit hardening: PASS.
+Timezone hardening: PASS.
+Least-privilege hardening: PASS.
+Self-service Auth UI: PASS at code/CI level.
+Browser-level authenticated persistence: NOT VERIFIED.
 
-No tags, scoring, pipeline stages, custom fields or opportunity objects are introduced in Client Core.
+Reason: NUS currently has zero persisted Auth users and the connected execution environment exposes no browser automation connector. Anonymous Auth is not enabled merely to manufacture E2E evidence.
 
-## Current NUS Supabase schema
-Foundation:
-- public.profiles
-- public.organizations
-- public.organization_members
-- public.activity_events
-
-Client Core:
-- public.clients
-- public.client_notes
-
-Applied migrations:
-- `20261003133448_foundation_core`
-- `20261003133636_foundation_workspace_atomic`
-- `20261003134008_foundation_function_hardening`
-- `20261003142451_client_core`
-- `20261003142516_client_core_hardening`
-- `20261003144346_client_activity_security_hardening`
-- `20261003144558_activity_events_write_lockdown`
-- `20261003144837_organizations_timezone_hardening`
-- `20261003145121_foundation_grants_lockdown`
-
-Current Security Advisor: 0 lints.
-
-Current Performance Advisor: INFO-only unused-index notices on zero/low-volume tables; no actionable unindexed foreign-key findings remain.
-
-## Foundation verification evidence
-GitHub Actions Run #4:
-- npm install: PASS
-- typecheck: PASS
-- lint: PASS
-- unit tests: PASS — 3 suites / 11 tests
-- production build: PASS — Next.js 16.3.8
-
-Foundation PR #1 was merged to `main`.
-
-## Client Core implementation
-Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
-- create client
-- edit client
-- retrieve client
-- search by name/phone/email
-- client detail
-- notes
-- timeline/activity
-- tenant-aware RLS
-- column-level write grants
-- server-side validation
-- server actions
-- search input normalization
-- unit tests
-- hardened internal activity-event trigger path
-- append-only activity-event permissions for end users
-- workspace IANA timezone validation and DB enforcement
-- client timeline rendering in workspace timezone
-- least-privilege grants on foundation tables
-
-## Client Core verification evidence
-GitHub Actions Run #9 on the search-hardening code commit:
-- npm install: PASS
-- typecheck: PASS
-- lint: PASS
-- unit tests: PASS
-- production build: PASS
-- overall conclusion: SUCCESS
-
-GitHub Actions Run #23 on the timezone-hardening commit:
-- npm install: PASS
-- typecheck: PASS
-- lint: PASS
-- unit tests: PASS
-- production build: PASS
-- overall conclusion: SUCCESS
-
-The latest grant-hardening/doc-sync CI is tracked separately and must be treated as pending until its run reports SUCCESS.
-
-Supabase:
-- Security Advisor: 0 lints
-- authenticated grants are least-privilege on foundation tables:
-  - profiles: SELECT/INSERT/UPDATE
-  - organizations: SELECT/INSERT/UPDATE
-  - organization_members: SELECT/INSERT/DELETE
-  - activity_events: SELECT
-- anon has no table privileges on foundation or Client Core tables
-- activity event SELECT is tenant-scoped to organization membership
-- activity-event writer is a private SECURITY DEFINER trigger function with public/anon/authenticated EXECUTE revoked
-- authenticated can SELECT activity events, but cannot INSERT, UPDATE, or DELETE them
-- authenticated cannot execute the internal activity trigger function
-- valid workspace timezones are enforced at the DB boundary; `Africa/Cairo` validates and `Not/AZone` is rejected
-- disposable authenticated-context RLS proof:
-  - own_visible = 1
-  - cross_visible = 0
-  - cross_insert_visible = 0
-  - cross_update_visible = 0
-  - cross_note_visible = 0
-- synthetic proof transaction was rolled back; synthetic user/org/client counts after the test were all zero.
-- current live counts: organizations=0, clients=0, client_notes=0, activity_events=0.
-
-## Client Core gate
-**Technical implementation gate: PASS.**
-
-**Activity/audit hardening gate: PASS.**
-
-**Workspace timezone hardening gate: PASS.**
-
-**Foundation least-privilege grant gate: PASS.**
-
-**Application-level browser Auth flow: NOT VERIFIED.**
-
-Reason:
-- NUS currently has zero persisted Auth users.
-- The exposed environment has no browser automation connector.
-- No temporary auth method is enabled merely to manufacture a passing test.
-- A self-service signup page was not added because the available repository-write path blocked the attempted implementation; no security bypass was used.
-
-Therefore PR #2 remains open and Milestone 2 remains ACTIVE. Do not advance to Appointment Core until browser-level authenticated create → retrieve → edit → note → search flow is evidenced.
+Real remaining proof: Login or Signup → Workspace → Create Client → Retrieve → Edit → Add Note → Search, using a real session. The email-confirmation callback URL must also be present in Supabase Auth Redirect URLs configuration.
 
 ## Commercial continuity
-Commercial validation remains PARTIAL.
-Pricing and unit-economics numbers remain planning hypotheses until real customer evidence is collected.
-Technical completion is not product-market validation.
+Commercial validation remains PARTIAL. Pricing and unit-economics numbers remain hypotheses until real customer evidence is collected.
 
-## Strategic continuity
-The exact canonical micro-niche wording from the prior strategic research must not be invented. It is a documentation-recovery item, not permission to restart discovery.
-
-## Definition of Done
-Every feature requires:
-UI + backend behavior + validation + authorization + DB integrity + loading/empty/error/failure states + audit/event behavior + relevant tests + static checks + build + real flow verification + regression.
-
-## Continuity protocol
-At the start of every future NUS conversation:
-1. Read this file.
-2. Inspect current `Generalsea/Nus` state.
-3. Inspect NUS Supabase only.
-4. Determine last passed gate.
-5. Continue from that exact milestone.
-6. Never restart Phase 0–10 without explicit evidence that a gate reopened.
-
-## Operating command
-`أغابي` = continue from the next unpassed NUS milestone using repository and Supabase evidence.
+## Continuity command
+أغابي = continue from the next unpassed NUS milestone using repository and Supabase evidence.
