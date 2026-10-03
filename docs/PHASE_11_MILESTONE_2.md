@@ -24,6 +24,7 @@ A real authenticated user can create and retrieve only authorized client records
 - Foundation identity/timestamp update grants are locked down at the database boundary.
 - GitHub Actions Run #72 = SUCCESS after the latest Client Core hardening.
 - GitHub Actions Run #87 = SUCCESS after making authenticated E2E fail closed on non-E2E workspaces.
+- GitHub Actions Run #91 = SUCCESS after final profile-trigger SECURITY DEFINER hardening.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
@@ -34,7 +35,7 @@ A real authenticated user can create and retrieve only authorized client records
 
 ## E2E readiness
 - Playwright authenticated Client Core flow is implemented.
-- Manual GitHub Actions workflow `.github/workflows/e2e.yml` is ready and requires a confirmed non-production Auth test account.
+- Manual GitHub Actions workflow `.github/workflows/e2e.yml` is ready and requires a confirmed non-production Auth test account plus a dedicated `NUS_E2E_WORKSPACE_NAME` beginning with `E2E `.
 
 ## Remaining gate
 Browser-level authenticated persistence is NOT VERIFIED.

@@ -63,8 +63,12 @@ org_id_insert=false
 
 This closes an identity-column mutation path at the database grant layer rather than relying only on application types.
 
+## Profile trigger hardening
+
+The live `private.handle_new_user_profile()` SECURITY DEFINER trigger now has `search_path=pg_catalog, public`, reducing name-resolution surface while preserving trigger execution. Direct EXECUTE remains revoked for public, anon and authenticated roles.
+
 ## Current gate interpretation
 
-CI Run #87 also passes the latest E2E-harness hardening. Supabase Security Advisor remains at 0 lints, and the live database remains empty. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
+CI Run #91 passes the latest profile-trigger hardening. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
 
 The remaining application-level evidence is a real login/signup browser flow against the NUS Auth service. NUS currently contains zero persisted auth users, and no browser automation connector is exposed in this environment; therefore that evidence is intentionally not claimed.

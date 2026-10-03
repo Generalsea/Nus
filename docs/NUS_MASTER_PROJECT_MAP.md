@@ -95,6 +95,7 @@ Security: tenant-scoped RLS, server-validated workspace selection, column-level 
 - 20261003160304 foundation_identity_grants_lockdown
 - 20261003160522 organization_owner_membership_guard
 - 20261003161042 profiles_timezone_hardening
+- 20261003161825 profile_trigger_search_path_hardening
 
 The platform-managed supabase_admin default-privilege owner boundary remains documented; the application-owned migration path has explicit least-privilege defaults.
 
@@ -123,6 +124,7 @@ The platform-managed supabase_admin default-privilege owner boundary remains doc
 - GitHub Actions Run #83: SUCCESS — profile timezone hardening passed CI; live DB constraint was verified.
 - GitHub Actions Run #84: SUCCESS — latest search wildcard sanitization passed npm audit, typecheck, lint, unit tests, and production build.
 - GitHub Actions Run #87: SUCCESS — fail-closed authenticated E2E guard and workspace-name validation passed npm audit, typecheck, lint, unit tests, and production build.
+- GitHub Actions Run #91: SUCCESS — profile trigger SECURITY DEFINER search_path hardening passed npm audit, typecheck, lint, unit tests, and production build.
 - Static high-risk repository scan found no matches for service-role credentials, dangerouslySetInnerHTML, innerHTML, eval(, or new Function(.
 - package-lock.json is committed and lockfile v3; npm ci is reproducible.
 - npm audit high-severity gate is enabled and currently passes.
