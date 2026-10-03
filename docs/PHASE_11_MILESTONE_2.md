@@ -16,13 +16,14 @@ A real authenticated user can create and retrieve only authorized client records
 - GitHub Actions Run #23 = SUCCESS.
 - GitHub Actions Run #29 = SUCCESS.
 - GitHub Actions Run #34 = SUCCESS after workspace-slug and auth-proxy hardening.
+- GitHub Actions Run #41 = SUCCESS with committed lockfile and `npm ci`.
 - Existing login screen now includes email/password signup, password confirmation, neutral errors, confirmation messaging, and safe callback return path.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
 - Auth redirect responses are marked `private, no-store` and `/auth` public matching is exact.
 - `main` is not currently verified as protected in GitHub; do not merge based on repository governance assumptions.
-- `package-lock.json` is absent and remains a pre-production reproducibility gate.
+- `package-lock.json` is committed; Run #41 verified `npm ci` successfully.
 
 ## Remaining gate
 Browser-level authenticated persistence is NOT VERIFIED.
