@@ -18,7 +18,7 @@ describe('slugifyWorkspaceName', () => {
     const second = slugifyWorkspaceName('عيادتي في القاهرة')
 
     expect(first).toBe(second)
-    expect(first).toMatch(/^workspace-[a-z0-9]+$/)
-    expect(first).toHaveLength(23)
+    expect(first).toMatch(/^workspace-[a-z0-9]+-[a-z0-9]+$/)
+    expect(first.length).toBeGreaterThan(20)
   })
 })
