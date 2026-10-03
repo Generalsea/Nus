@@ -77,6 +77,10 @@ A second disposable authenticated transaction executed Client Core mutations thr
 
 The live `private.handle_new_user_profile()` SECURITY DEFINER trigger now has `search_path=pg_catalog, public`, reducing name-resolution surface while preserving trigger execution. Direct EXECUTE remains revoked for public, anon and authenticated roles.
 
+## Regression proof
+
+The final Client Core regression pass verified: anonymous RPC execution is denied; malformed workspace name and slug inputs are rejected before persistence; invalid timezone input fails closed; owner membership role injection is rejected; and the end-to-end Client Core transaction remains create client → note → archive/update → note update with four audit events. Every database test was rolled back.
+
 ## Current gate interpretation
 
 CI Run #91 passes the latest profile-trigger hardening. The subsequent workspace-integrity migrations are covered by the current CI stream. Supabase Security Advisor remains at 0 lints, and the live database remains empty.

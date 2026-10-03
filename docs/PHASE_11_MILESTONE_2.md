@@ -26,6 +26,7 @@ A real authenticated user can create and retrieve only authorized client records
 - GitHub Actions Run #87 = SUCCESS after making authenticated E2E fail closed on non-E2E workspaces.
 - GitHub Actions Run #91 = SUCCESS after final profile-trigger SECURITY DEFINER hardening.
 - Latest database hardening fixed workspace-creation RLS recursion and constraint-function execution, with live transaction proofs for Workspace → Client → Note → Audit.
+- Regression coverage also exercised unauthenticated RPC denial, malformed workspace name/slug rejection, invalid timezone fail-closed behavior, and owner-role injection rejection; no persisted test data remained.
 
 ## Release hardening notes
 - Arabic-only workspace names now produce a valid deterministic ASCII slug instead of failing workspace creation.
