@@ -65,6 +65,6 @@ This closes an identity-column mutation path at the database grant layer rather 
 
 ## Current gate interpretation
 
-CI Run #72 and database authorization proof are PASS. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
+CI Run #87 also passes the latest E2E-harness hardening. Supabase Security Advisor remains at 0 lints, and the live database remains empty. Supabase Security Advisor remains at 0 lints, and the live database remains empty.
 
 The remaining application-level evidence is a real login/signup browser flow against the NUS Auth service. NUS currently contains zero persisted auth users, and no browser automation connector is exposed in this environment; therefore that evidence is intentionally not claimed.
