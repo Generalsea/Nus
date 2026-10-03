@@ -139,6 +139,7 @@ Applied migrations:
 - `20261003144346_client_activity_security_hardening`
 - `20261003144558_activity_events_write_lockdown`
 - `20261003144837_organizations_timezone_hardening`
+- `20261003145121_foundation_grants_lockdown`
 
 Current Security Advisor: 0 lints.
 
@@ -173,6 +174,7 @@ Implemented on branch `feature/phase-11-client-core` and tracked by PR #2:
 - append-only activity-event permissions for end users
 - workspace IANA timezone validation and DB enforcement
 - client timeline rendering in workspace timezone
+- least-privilege grants on foundation tables
 
 ## Client Core verification evidence
 GitHub Actions Run #9 on the search-hardening code commit:
@@ -183,18 +185,24 @@ GitHub Actions Run #9 on the search-hardening code commit:
 - production build: PASS
 - overall conclusion: SUCCESS
 
-Latest run for the timezone-hardening commit is CI Run #23:
-- install: PASS
+GitHub Actions Run #23 on the timezone-hardening commit:
+- npm install: PASS
 - typecheck: PASS
 - lint: PASS
 - unit tests: PASS
-- production build: running at last observation
+- production build: PASS
+- overall conclusion: SUCCESS
+
+The latest grant-hardening/doc-sync CI is tracked separately and must be treated as pending until its run reports SUCCESS.
 
 Supabase:
 - Security Advisor: 0 lints
-- table-level DELETE/TRUNCATE privileges for authenticated: false on clients and client_notes
-- organization_id and created_by_user_id are not UPDATE-granted
-- client_notes organization_id and author_user_id are not UPDATE-granted
+- authenticated grants are least-privilege on foundation tables:
+  - profiles: SELECT/INSERT/UPDATE
+  - organizations: SELECT/INSERT/UPDATE
+  - organization_members: SELECT/INSERT/DELETE
+  - activity_events: SELECT
+- anon has no table privileges on foundation or Client Core tables
 - activity event SELECT is tenant-scoped to organization membership
 - activity-event writer is a private SECURITY DEFINER trigger function with public/anon/authenticated EXECUTE revoked
 - authenticated can SELECT activity events, but cannot INSERT, UPDATE, or DELETE them
@@ -215,6 +223,8 @@ Supabase:
 **Activity/audit hardening gate: PASS.**
 
 **Workspace timezone hardening gate: PASS.**
+
+**Foundation least-privilege grant gate: PASS.**
 
 **Application-level browser Auth flow: NOT VERIFIED.**
 
