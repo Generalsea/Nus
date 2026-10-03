@@ -96,6 +96,8 @@ Security: tenant-scoped RLS, server-validated workspace selection, column-level 
 - 20261003160522 organization_owner_membership_guard
 - 20261003161042 profiles_timezone_hardening
 - 20261003161825 profile_trigger_search_path_hardening
+- 20261003165806 timezone_validator_execute_grant
+- 20261003165911 organization_creation_integrity
 
 The platform-managed supabase_admin default-privilege owner boundary remains documented; the application-owned migration path has explicit least-privilege defaults.
 
@@ -112,6 +114,10 @@ The platform-managed supabase_admin default-privilege owner boundary remains doc
 - Client insert no longer attempts to write the insert-protected `archived_at` column.
 - Foundation `profiles` and `organizations` identity/ownership/timestamp columns are excluded from authenticated UPDATE grants.
 - Workspace owners cannot delete their own membership through the Data API; only `member` memberships can self-delete until ownership transfer/lifecycle is implemented.
+- Workspace owner-membership authorization uses a private SECURITY DEFINER helper to avoid recursive RLS between `organizations` and `organization_members`.
+- Workspace creation no longer uses `RETURNING` before membership exists; the RPC creates the membership first, then reads the organization under the normal membership SELECT policy.
+- Direct organization INSERTs preserve the owner-membership invariant through an internal AFTER INSERT trigger.
+- The timezone validator is executable by `authenticated` only as required by database CHECK constraints; the private schema remains inaccessible directly.
 - Both organization and profile timezones are enforced against the IANA timezone catalog at the database boundary.
 - Client search neutralizes PostgREST wildcard/filter grammar characters before constructing the OR filter.
 - Disposable cross-tenant RLS proof passed and was rolled back.
@@ -159,7 +165,7 @@ The temporary test workflow was deleted immediately after the attempt. The perma
 
 ## Current gate interpretation
 
-Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS through Run #91; the latest synchronized documentation commit is validated by CI Run #92.
+Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS through Run #94; subsequent Workspace integrity and security-gate changes are validated by later CI runs.
 
 Real authenticated browser persistence: NOT VERIFIED because the required GitHub secrets are absent.
 
