@@ -6,6 +6,7 @@
 - GitHub: Generalsea/Nus
 - Supabase project: NUS
 - Supabase ref: oghiyggxhxoxdysustkv
+- Supabase URL: https://oghiyggxhxoxdysustkv.supabase.co
 - Default branch: main
 - Active phase: Phase 11 — Code Implementation
 - Active milestone: Milestone 2 — Client Core
@@ -13,12 +14,30 @@
 - Commercial validation: PARTIAL
 
 ## Hard isolation
+
 NUS is independent from DEBA and every other project. Never use DEBA source, migrations, credentials, runtime state, branches, or Supabase ref gkwpjtbrecoesxyoybto.
 
 ## Product North Star
+
 > I open NUS every morning because it tells me what matters today, protects me from missing opportunities, and removes repetitive administrative work.
 
+## Core loop
+
+Morning → Today priorities → appointments → at-risk clients → follow-ups → action → interaction → note/outcome → next action → reminder/automation → return tomorrow.
+
+## Product laws
+
+PRODUCT VALUE > FEATURE COUNT
+RETENTION > NOVELTY
+REAL DEMAND > PERSONAL OPINION
+PROOF > ASSUMPTION
+RELIABILITY > CODING SPEED
+SIMPLICITY > ARCHITECTURAL COMPLEXITY
+CUSTOMER OUTCOME > TECHNICAL SHOWCASE
+RECURRING VALUE > ONE-TIME NOVELTY
+
 ## Phase state
+
 | Phase | Status |
 |---|---|
 | 0 Project Framing | PASS |
@@ -39,12 +58,30 @@ NUS is independent from DEBA and every other project. Never use DEBA source, mig
 | 15 Real-World Validation | PENDING |
 | 16 Growth + Iteration | PENDING |
 
+## MVP boundary
+
+MUST HAVE: auth, workspace, clients, appointments, Today, follow-up, reminders, notification abstraction, notes/history, audit, validation/errors, analytics foundation.
+
+NOT YET: microservices, native apps, full CRM/ERP, autonomous AI, large integration marketplace, complex enterprise RBAC, social features, advanced BI.
+
+## Milestones
+
+1. Foundation
+2. Client Core
+3. Appointment Core
+4. Today Engine
+5. Follow-up + Automation
+6. Notification Provider
+7. AI Action Layer
+
 ## Client Core
+
 Scope: create, edit, retrieve, search, detail, notes, timeline/activity, workspace timezone handling, self-service email/password signup on the existing auth screen.
 
 Security: tenant-scoped RLS, column-level mutable fields, append-only activity events for end users, least-privilege foundation grants, no anon table access, valid IANA workspace timezone constraint.
 
 ## Applied NUS migrations
+
 - 20261003133448 foundation_core
 - 20261003133636 foundation_workspace_atomic
 - 20261003134008 foundation_function_hardening
@@ -56,50 +93,68 @@ Security: tenant-scoped RLS, column-level mutable fields, append-only activity e
 - 20261003145121 foundation_grants_lockdown
 - 20261003145225 public_default_privileges_lockdown
 
-An attempted ALTER DEFAULT PRIVILEGES for the platform-owned supabase_admin role was denied by PostgreSQL permission boundaries. This is documented as a platform-managed owner limitation; application-created objects use the postgres owner and are covered by the NUS migration.
+The platform-managed supabase_admin default-privilege owner boundary remains documented; the application-owned migration path has explicit least-privilege defaults.
 
 ## Verification
+
 - Supabase Security Advisor: 0 lints.
 - All public NUS application tables have RLS enabled.
-- anon has no table privileges on NUS application tables.
+- anon has no NUS application-table grants.
 - authenticated foundation grants are least-privilege.
 - authenticated can SELECT activity events but cannot INSERT, UPDATE, or DELETE them.
 - authenticated cannot execute the private activity trigger.
-- Africa/Cairo is accepted as a workspace timezone; invalid IANA values are rejected.
-- Disposable cross-tenant RLS proof: own_visible=1, cross_visible=0, cross_insert_visible=0, cross_update_visible=0, cross_note_visible=0.
-- Synthetic proof data was rolled back; current live counts for organizations, clients, notes, and activity events are zero.
-- GitHub Actions Run #23: SUCCESS.
-- GitHub Actions Run #29: SUCCESS.
-- GitHub Actions Run #34: SUCCESS on head `c2317dfdf555c0acad7c64194e0f8a4dbff27d49`.
-- GitHub Actions Run #41: SUCCESS on head `6b466acea2b0c4de8df8f79ca45e954e8b05d18e`, including `npm ci`, typecheck, lint, unit tests, and production build.
-- GitHub Actions Run #51 = SUCCESS after Client/Today resilience and E2E harness additions.
-- GitHub Actions Run #49: SUCCESS on head `61c386a8f4273f05413b8406000584761dcb3671` after client/today error boundaries and authenticated E2E harness hardening.
-- `package-lock.json` (lockfile v3) is committed; CI uses `npm ci` with `contents: read`.
-- Workspace onboarding now generates an ASCII-safe deterministic slug for Arabic-only names.
-- Auth redirect responses are explicitly `private, no-store`, and the public auth matcher is limited to `/login` and `/auth/*`.
+- Valid IANA workspace timezones are enforced at the database boundary.
+- Disposable cross-tenant RLS proof passed and was rolled back.
+- Current live database counts: auth.users=0, organizations=0, clients=0, client_notes=0, activity_events=0.
+- GitHub Actions Run #66: SUCCESS — dependency audit, typecheck, lint, unit tests, and production build all passed.
+- GitHub Actions Run #67: SUCCESS on the current feature branch after final CI pinning.
+- GitHub Actions Run #68: SUCCESS after the final E2E workflow fail-fast change.
+- Static high-risk repository scan found no matches for service-role credentials, dangerouslySetInnerHTML, innerHTML, eval(, or new Function(.
+- package-lock.json is committed and lockfile v3; npm ci is reproducible.
+- npm audit high-severity gate is enabled and currently passes.
+- GitHub Actions checkout/setup-node are pinned by immutable SHA to current v7 releases.
+
+## Real browser E2E evidence
+
+A one-shot authenticated E2E execution was actually attempted on GitHub Actions Run 1 of the temporary test workflow.
+
+Browser infrastructure succeeded:
+- npm ci: PASS
+- Chromium installation: PASS
+- Playwright launched real Chromium: PASS
+
+The application/Auth execution did not proceed because all four configured GitHub secrets resolved to empty values in the runner environment:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+- NUS_E2E_EMAIL
+- NUS_E2E_PASSWORD
+
+The application therefore failed its own environment validation, and the test failed before login. No database mutation occurred. The live database was rechecked afterward and remains empty.
+
+The temporary test workflow was deleted immediately after the attempt. The permanent manual E2E workflow now fails fast with explicit missing-secret errors.
 
 ## Release hardening gates
-- GitHub legacy Branch Protection reports `main` as `protected: false`.
+
+- GitHub legacy Branch Protection cannot currently be verified from the connected integration because the protection endpoint returns 403 Resource not accessible by integration.
 - GitHub repository Rulesets API currently returns no rulesets.
-- The connected GitHub tooling does not expose branch-protection/ruleset write operations, so `main` protection cannot be enabled from this execution context; do not treat `main` as protected until verified in GitHub settings.
-- `package-lock.json` is now committed and reproducible installs are verified by Runs #41 and #51.
+- Therefore main protection is NOT VERIFIED and must not be described as protected.
+- Supabase Auth Redirect URLs for the real E2E environment remain unconfigured/unverified because no real E2E environment credentials are currently present.
+- Production readiness remains NOT PRODUCTION READY.
 
-## Current gate
-Technical implementation: PASS.
-Activity/audit hardening: PASS.
-Timezone hardening: PASS.
-Least-privilege hardening: PASS.
-Self-service Auth UI: PASS at code/CI level.
-E2E infrastructure: PASS — Playwright config, authenticated Client Core flow, and manual GitHub Actions E2E workflow are present; real execution remains pending.
-Latest quality verification: GitHub Actions Run #51 = SUCCESS on the current code/docs baseline.
-Browser-level authenticated persistence: NOT VERIFIED.
+## Current gate interpretation
 
-Reason: NUS currently has zero persisted Auth users and the connected execution environment exposes no browser automation connector. Anonymous Auth is not enabled merely to manufacture E2E evidence.
+Client Core implementation + database security + reproducible dependencies + CI quality gates: PASS.
 
-Real remaining proof: Login or Signup → Workspace → Create Client → Retrieve → Edit → Add Note → Search, using a real session. The email-confirmation callback URL must also be present in Supabase Auth Redirect URLs configuration.
+Real authenticated browser persistence: NOT VERIFIED because the required GitHub secrets are absent.
 
-## Commercial continuity
-Commercial validation remains PARTIAL. Pricing and unit-economics numbers remain hypotheses until real customer evidence is collected.
+GitHub main protection: NOT VERIFIED because the current integration cannot access the required administration endpoint.
+
+Do not merge PR #2 or start Appointment Core until the two release gates above are evidenced through real external configuration.
+
+## Engineering loop
+
+INSPECT → PLAN → DESIGN → IMPLEMENT → TEST → VERIFY → DOCUMENT → PROCEED.
 
 ## Continuity command
+
 أغابي = continue from the next unpassed NUS milestone using repository and Supabase evidence.
