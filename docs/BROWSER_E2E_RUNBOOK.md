@@ -24,4 +24,5 @@ The test uses unique names so a failed run does not depend on pre-existing clien
 
 - PASS requires the complete flow to execute against a real Auth session.
 - Missing environment variables are an environment failure, not a product pass.
+- The repository also contains a manual GitHub Actions workflow at `.github/workflows/e2e.yml` for running this gate with repository secrets.
 - The current project cannot claim this gate until an actual run is executed with a real confirmed account.
