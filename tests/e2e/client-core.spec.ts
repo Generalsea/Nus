@@ -16,7 +16,6 @@ test.describe('Client Core authenticated flow', () => {
     }
     const unique = Date.now().toString(36)
     const clientName = `E2E Client ${unique}`
-    const workspaceName = `E2E Workspace ${unique}`
     const noteBody = `E2E note ${unique}`
     const updatedName = `${clientName} Updated`
 
