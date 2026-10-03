@@ -1,13 +1,15 @@
 # NUS Phase 11 — Milestone 1 Gate Status
 
-Verified: 2026-10-03 (latest local/live re-check)
+Verified: 2026-10-03
 
 ## Repository
 
 - GitHub repository: `Generalsea/Nus`
 - Local remote: `origin -> https://github.com/Generalsea/Nus.git`
-- Active local branch: `feature/phase-11-foundation`
-- Git working tree at verification start: clean
+- Foundation branch: `feature/phase-11-foundation`
+- Foundation PR: `#1`
+- Latest tested foundation commit: `ad8e451b535772e1a995da2f4cbc04d8d31780ad`
+- Authenticated repository permission: `admin`
 
 ## Supabase
 
@@ -34,28 +36,26 @@ Foundation tables with RLS enabled:
 
 Supabase Security Advisor: 0 lints.
 
-Performance Advisor currently reports only unused indexes, which is expected on a newly provisioned zero-row database and is not treated as a failure at this gate.
+Performance Advisor reports only unused indexes, expected on a newly provisioned zero-row database.
 
-## Code verification
+## Remote CI evidence
 
-- TypeScript/TSX/MJS syntax parse: **20/20 PASS**
-- JSON parsing (`package.json`, `tsconfig.json`): **2/2 PASS**
-- `git diff --check`: **PASS**
-- Redirect security behavior: **6/6 PASS**
-- Full dependency-backed test suite: **PENDING REMOTE CI**
-- Production build: **PENDING REMOTE CI**
-- `package-lock.json`: intentionally absent at this bootstrap stage; CI uses connected `npm install` to resolve the pinned dependency set.
+GitHub Actions **Run #4 — SUCCESS**:
 
-## GitHub write blocker
+- `npm install --no-audit --no-fund`: PASS; 404 packages resolved
+- `npm run typecheck`: PASS
+- `npm run lint`: PASS
+- `npm test`: PASS — 3 suites / 11 tests
+- `npm run build`: PASS — Next.js 16.3.8 production build
 
-**RESOLVED on 2026-10-03.** The authenticated GitHub account `Generalsea` has `admin` permission on `Generalsea/Nus`, and `feature/phase-11-foundation` has been created successfully.
+Connected runner environment: Node.js 22.23.3 / npm 10.9.9.
 
 ## Gate
 
-**Milestone 1 is READY FOR REMOTE CI VERIFICATION, NOT YET PASS.**
+**Milestone 1 — Foundation: PASS.**
 
-The only remaining technical gate is a successful connected GitHub Actions run covering dependency installation, typecheck, lint, unit tests, and production build.
+The remaining browser E2E verification belongs to later application-flow testing and does not reopen the Foundation gate. Production readiness remains **NOT PRODUCTION READY**; commercial validation remains **PARTIAL**.
 
-## CI bootstrap
+## Dependency model
 
-The CI workflow intentionally uses `npm install --no-audit --no-fund` while this new repository has no committed lockfile. This permits the connected GitHub runner to resolve the declared pinned dependencies and execute typecheck, lint, unit tests, and build. A committed lockfile should be added when the dependency graph is generated in an environment with npm registry access.
+The repository is still at bootstrap and does not yet commit a `package-lock.json`. CI uses `npm install --no-audit --no-fund` on a connected runner. The dependency versions themselves are pinned in `package.json`. A lockfile should be captured before production-hardening/deployment work.

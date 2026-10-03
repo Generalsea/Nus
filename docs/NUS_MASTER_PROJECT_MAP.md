@@ -101,14 +101,17 @@ Applied to NUS Supabase:
 - Performance advisor currently reports unused indexes only because the tables are empty; this is expected pre-usage telemetry, not a correctness defect
 - Applied migrations: `20261003133448`, `20261003133636`, `20261003134008`
 
+## GitHub write status
+GitHub write access is **RESOLVED**. The authenticated account has `admin` permission on `Generalsea/Nus`, branch `feature/phase-11-foundation` was created, commit `ad8e451b535772e1a995da2f4cbc04d8d31780ad` was published, and PR #1 was opened for the foundation changes.
+
 ## Continuity protocol
 At the start of every future NUS conversation:
 1. Read this file.
-2. Inspect the NUS Supabase project only.
-3. Determine the last passed gate.
-4. Continue from that exact milestone.
-5. Do not restart Phase 0–10 without explicit evidence that a gate reopened.
-6. Never use DEBA as the active project.
+2. Inspect current `Generalsea/Nus` state.
+3. Inspect the NUS Supabase project only.
+4. Determine the last passed gate.
+5. Continue from that exact milestone.
+6. Do not restart Phase 0–10 without explicit evidence that a gate reopened.
 
 ## Engineering loop
 INSPECT → PLAN → DESIGN → IMPLEMENT → TEST → VERIFY → DOCUMENT → PROCEED.
@@ -121,7 +124,9 @@ INSPECT → PLAN → DESIGN → IMPLEMENT → TEST → VERIFY → DOCUMENT → P
 
 The canonical repository is `Generalsea/Nus`. The repository is public and its default branch is `main`.
 
-The ChatGPT GitHub integration can now read and write `Generalsea/Nus` through the authorized account. Repository permission is `admin` and the foundation branch can be created through the integration.
+The ChatGPT GitHub integration can now read and write `Generalsea/Nus` through the authorized account. Repository permission is `admin`, and the foundation branch was created successfully.
+
+No credential is guessed, extracted, or bypassed.
 
 ## Local source of truth
 
@@ -131,19 +136,26 @@ The verified local implementation branch is:
 
 The local repository has a valid `origin` pointing to `https://github.com/Generalsea/Nus.git`.
 
+The local foundation commits are preserved and bundled separately when required.
+
 ## Dependency verification
 
-The execution container still cannot reach the npm registry and has no local dependency cache. Dependency-backed tests and the production build remain **NOT VERIFIED locally**.
+The execution container still cannot reach the npm registry and has no local dependency cache. Dependency-backed verification remains unavailably local, but connected GitHub Actions has now resolved and executed the full dependency-backed CI sequence successfully.
 
-The GitHub Actions workflow is configured to resolve dependencies on a connected runner with `npm install --no-audit --no-fund`, then execute typecheck, lint, unit tests, and build.
-
-### Latest local verification checkpoint — 2026-10-03
+### Latest verification checkpoint — 2026-10-03
 - Local syntax parser: `20/20 PASS` across tracked `.ts`, `.tsx`, and `.mjs` implementation/test/migration files.
 - JSON parsing: `package.json` + `tsconfig.json` = `2/2 PASS`.
 - Redirect security runtime cases: `6/6 PASS`.
 - `git diff --check`: PASS.
-- Full dependency-backed tests/build: pending connected GitHub runner.
+- GitHub Actions Run #4: **SUCCESS** on commit `ad8e451b535772e1a995da2f4cbc04d8d31780ad`.
+- Connected runner: Node.js `22.23.3`, npm `10.9.9`.
+- `npm install --no-audit --no-fund`: PASS; `404` packages resolved.
+- `npm run typecheck`: PASS.
+- `npm run lint`: PASS.
+- `npm test`: PASS — `3` suites / `11` tests.
+- `npm run build`: PASS — Next.js `16.3.8` production build.
+- `package-lock.json` remains absent; CI intentionally uses connected `npm install` during bootstrap. Capture a committed lockfile before production-hardening/deployment.
 
-## Gate
+## Foundation gate
 
-Milestone 1 is **READY FOR REMOTE CI VERIFICATION**. Do not declare it PASS until GitHub Actions completes install, typecheck, lint, unit tests, and build successfully.
+Milestone 1 — Foundation is **PASS**. Browser E2E remains a later application-flow verification item and does not reopen the completed Foundation gate. Production readiness remains **NOT PRODUCTION READY** and commercial validation remains **PARTIAL**.

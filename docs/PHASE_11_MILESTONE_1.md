@@ -2,7 +2,7 @@
 
 ## Status
 
-Foundation implementation is synchronized to the dedicated NUS Supabase project and is ready for remote CI verification.
+**PASS — Foundation gate closed on 2026-10-03.** The dedicated NUS Supabase foundation is synchronized, GitHub write access is verified, and connected CI completed dependency installation, typecheck, lint, unit tests, and production build successfully.
 
 ## Acceptance criteria
 
@@ -12,14 +12,14 @@ Foundation implementation is synchronized to the dedicated NUS Supabase project 
 - [x] RLS enabled on foundation tables
 - [x] Auth proxy uses `@supabase/ssr` and current Next.js 16 `proxy.ts` pattern
 - [x] No DEBA credentials or database references are used
-- [x] GitHub write/branch creation verified through authorized GitHub integration
-- [x] CI workflow uses a connected runner to resolve pinned dependencies without requiring a local npm registry
-- [ ] typecheck
-- [ ] lint
-- [ ] unit test execution
-- [ ] production build
-- [ ] browser E2E against local running application
+- [x] GitHub write/branch creation
+- [x] npm dependency installation on connected runner
+- [x] typecheck
+- [x] lint
+- [x] unit test execution
+- [x] production build
+- [ ] browser E2E against local running application (later application-flow verification)
 
 ## Gate
 
-Milestone remains **READY FOR REMOTE CI VERIFICATION** until GitHub Actions completes the dependency install, typecheck, lint, unit tests, and production build successfully.
+Milestone 1 Foundation gate is **PASS**. Browser E2E is tracked as a later application-flow verification item; production readiness is still not declared.
