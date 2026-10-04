@@ -7,7 +7,7 @@ function requiredEnv(name: string): string {
 }
 
 test.describe('Client Core authenticated flow', () => {
-  test('login → workspace → client create → edit → note → search', async ({ page }) => {
+  test('login → workspace → client create → edit → note → search → logout', async ({ page }) => {
     const email = requiredEnv('NUS_E2E_EMAIL')
     const password = requiredEnv('NUS_E2E_PASSWORD')
     const workspaceName = requiredEnv('NUS_E2E_WORKSPACE_NAME')
@@ -71,5 +71,10 @@ test.describe('Client Core authenticated flow', () => {
 
     await expect(page.getByRole('link', { name: new RegExp(updatedName) })).toBeVisible()
     await expect(page.getByText(noteBody)).not.toBeVisible()
+
+    await page.getByRole('link', { name: /اليوم/ }).click()
+    await expect(page).toHaveURL(/\/today$/)
+    await page.getByRole('button', { name: 'تسجيل الخروج' }).click()
+    await expect(page).toHaveURL(/\/login$/)
   })
 })
