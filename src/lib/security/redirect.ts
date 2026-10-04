@@ -1,5 +1,22 @@
 export function safeInternalPath(value: string | null | undefined, fallback = '/today'): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return fallback
+  if (!value || !value.startsWith('/')) return fallback
+
+  let decoded = value
+  try {
+    decoded = decodeURIComponent(value)
+  } catch {
+    return fallback
+  }
+
+  if (
+    value.startsWith('//') ||
+    decoded.startsWith('//') ||
+    value.includes('\\') ||
+    decoded.includes('\\') ||
+    /[\u0000-\u001F\u007F]/.test(decoded)
+  ) {
+    return fallback
+  }
 
   try {
     const base = 'https://nus.invalid'

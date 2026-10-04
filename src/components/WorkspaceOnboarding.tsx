@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { slugify } from '@/lib/domain/slug'
+import { slugifyWorkspaceName } from '@/lib/domain/slug'
 import { createWorkspaceSchema } from '@/lib/validation/workspace'
 
 export default function WorkspaceOnboarding() {
@@ -19,7 +19,11 @@ export default function WorkspaceOnboarding() {
     setPending(true)
     setError(null)
 
-    const parsed = createWorkspaceSchema.safeParse({ name, slug: slugify(name), timezone })
+    const parsed = createWorkspaceSchema.safeParse({
+      name,
+      slug: slugifyWorkspaceName(name),
+      timezone,
+    })
     if (!parsed.success) {
       setError('أدخل اسم مساحة عمل صالحًا.')
       setPending(false)
@@ -33,7 +37,11 @@ export default function WorkspaceOnboarding() {
     })
 
     if (createError) {
-      setError(createError.code === '23505' ? 'هذا الاسم المختصر مستخدم بالفعل. غيّر اسم مساحة العمل.' : 'تعذر إنشاء مساحة العمل. حاول مرة أخرى.')
+      setError(
+        createError.code === '23505'
+          ? 'هذا الاسم المختصر مستخدم بالفعل. غيّر اسم مساحة العمل.'
+          : 'تعذر إنشاء مساحة العمل. حاول مرة أخرى.',
+      )
       setPending(false)
       return
     }
@@ -46,18 +54,45 @@ export default function WorkspaceOnboarding() {
       <section className="mx-auto max-w-xl rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
         <p className="text-sm font-bold text-orange-600">NUS · FOUNDATION</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">أنشئ مساحة عملك</h1>
-        <p className="mt-3 text-sm leading-6 text-gray-600">أول خطوة لتثبيت حدود بياناتك ومساحة العمل قبل إدخال العملاء والمواعيد.</p>
+        <p className="mt-3 text-sm leading-6 text-gray-600">
+          أول خطوة لتثبيت حدود بياناتك ومساحة العمل قبل إدخال العملاء والمواعيد.
+        </p>
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <label className="block">
             <span className="mb-2 block text-sm font-bold">اسم النشاط</span>
-            <input className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-orange-500" required minLength={2} maxLength={120} value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: عيادتي" />
+            <input
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-orange-500"
+              required
+              minLength={2}
+              maxLength={120}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="مثال: عيادتي"
+            />
           </label>
           <label className="block">
             <span className="mb-2 block text-sm font-bold">المنطقة الزمنية</span>
-            <input className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-orange-500" value={timezone} onChange={(e) => setTimezone(e.target.value)} />
+            <input
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-orange-500"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+            />
           </label>
-          {error ? <div role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</div> : null}
-          <button type="submit" disabled={pending} className="w-full rounded-2xl bg-orange-600 px-5 py-3 font-extrabold text-white hover:bg-orange-700 disabled:opacity-60">{pending ? 'جاري الإنشاء…' : 'إنشاء مساحة العمل'}</button>
+          {error ? (
+            <div
+              role="alert"
+              className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+            >
+              {error}
+            </div>
+          ) : null}
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full rounded-2xl bg-orange-600 px-5 py-3 font-extrabold text-white hover:bg-orange-700 disabled:opacity-60"
+          >
+            {pending ? 'جاري الإنشاء…' : 'إنشاء مساحة العمل'}
+          </button>
         </form>
       </section>
     </main>

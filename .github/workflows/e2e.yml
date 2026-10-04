@@ -1,0 +1,46 @@
+name: Authenticated E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Optional deployed or local URL. Leave empty to start Next.js locally.
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  client-core:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NUS_E2E_EMAIL: ${{ secrets.NUS_E2E_EMAIL }}
+      NUS_E2E_PASSWORD: ${{ secrets.NUS_E2E_PASSWORD }}
+      NUS_E2E_WORKSPACE_NAME: ${{ secrets.NUS_E2E_WORKSPACE_NAME }}
+      PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Validate authenticated E2E environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${NEXT_PUBLIC_SUPABASE_URL}" || { echo "::error::Missing GitHub secret NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
+          test -n "${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}" || { echo "::error::Missing GitHub secret NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"; exit 1; }
+          test -n "${NUS_E2E_EMAIL}" || { echo "::error::Missing GitHub secret NUS_E2E_EMAIL"; exit 1; }
+          test -n "${NUS_E2E_PASSWORD}" || { echo "::error::Missing GitHub secret NUS_E2E_PASSWORD"; exit 1; }
+          test -n "${NUS_E2E_WORKSPACE_NAME}" || { echo "::error::Missing GitHub secret NUS_E2E_WORKSPACE_NAME"; exit 1; }
+          [[ "${NUS_E2E_WORKSPACE_NAME}" == E2E\ * ]] || { echo "::error::NUS_E2E_WORKSPACE_NAME must start with 'E2E '"; exit 1; }
+
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e

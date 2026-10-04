@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { safeInternalPath } from '@/lib/security/redirect'
+import { privateRedirect } from '@/lib/security/response'
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -8,11 +8,11 @@ export async function GET(request: Request) {
   const next = url.searchParams.get('next')
   const safeNext = safeInternalPath(next)
 
-  if (!code) return NextResponse.redirect(new URL('/login?error=missing_code', url.origin))
+  if (!code) return privateRedirect(new URL('/login?error=missing_code', url.origin))
 
   const supabase = await createClient()
   const { error } = await supabase.auth.exchangeCodeForSession(code)
-  if (error) return NextResponse.redirect(new URL('/login?error=auth_callback', url.origin))
+  if (error) return privateRedirect(new URL('/login?error=auth_callback', url.origin))
 
-  return NextResponse.redirect(new URL(safeNext, url.origin))
+  return privateRedirect(new URL(safeNext, url.origin))
 }
